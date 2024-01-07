@@ -74,6 +74,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "fltk-theme"
+version = "0.7.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3539d27a815514b56af2afa6b8e7c6d6b9274a103239487d5a60daa6340a4868"
+dependencies = [
+ "fltk",
+]
+
+[[package]]
 name = "libc"
 version = "0.2.151"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -90,6 +99,7 @@ name = "sudoku"
 version = "0.1.0"
 dependencies = [
  "fltk",
+ "fltk-theme",
 ]
 
 [[package]]
