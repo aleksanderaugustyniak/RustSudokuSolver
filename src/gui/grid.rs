@@ -57,16 +57,17 @@ impl Grid{
                 "1",
             );
             self.control_panel.borrow_mut()[number].set_label(&format!("{}", number + 1));
+            self.control_panel.borrow_mut()[number].set_color(Color::White.darker());
         }
-        for number in 0..9 {
+        for control_button in self.control_panel.borrow_mut().iter_mut() {
             let current_number_clone = Rc::clone(&self.current_number);
             let control_panel_clone = Rc::clone(&self.control_panel);
 
-            self.control_panel.borrow_mut()[number].set_callback(move |button: &mut Button| {
+            control_button.set_callback(move |button: &mut Button| {
                 *current_number_clone.borrow_mut() = button.label().to_string();
-                for number in 0..9 {
-                    (*control_panel_clone.borrow_mut())[number].set_color(Color::White.darker());
-                    (*control_panel_clone.borrow_mut())[number].redraw();
+                for but in (*control_panel_clone.borrow_mut()).iter_mut() {
+                    but.set_color(Color::White.darker());
+                    but.redraw();
                 }
                 button.set_color(Color::Blue.lighter());
             });
