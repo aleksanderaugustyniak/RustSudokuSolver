@@ -76,12 +76,26 @@ impl Grid{
         for control_button in self.control_panel.borrow_mut().iter_mut() {
             let current_number_clone = Rc::clone(&self.current_number);
             let control_panel_clone = Rc::clone(&self.control_panel);
+            let play_grid_clone = Rc::clone(&self.play_grid);
 
             control_button.set_callback(move |button: &mut Button| {
                 *current_number_clone.borrow_mut() = button.label().to_string();
                 for but in (*control_panel_clone.borrow_mut()).iter_mut() {
                     but.set_color(LIGHT_BUTTON_COLOR);
                     but.redraw();
+                }
+                for (row, play_row) in (*play_grid_clone.borrow_mut()).iter_mut().enumerate() {
+                    for (col, play_button) in play_row.iter_mut().enumerate() {
+                        if play_button.label() == button.label() {
+                            play_button.set_color(HIGHLIGHTED_BUTTON_COLOR);
+                            play_button.redraw();
+                        } else {
+                            let square_id = (row / 3) + (col / 3);
+                            let button_color = if square_id % 2 == 1 {DARK_BUTTON_COLOR} else {LIGHT_BUTTON_COLOR};
+                            play_button.set_color(button_color);
+                            play_button.redraw();
+                        }
+                    }
                 }
                 button.set_color(HIGHLIGHTED_BUTTON_COLOR);
             });
@@ -98,17 +112,18 @@ impl Grid{
         );
 
         self.set_play_button_callback(row, col);
-        self.show_squares(row, col);
+        self.show_square(row, col);
     }
 
     fn set_play_button_callback(&self, row: usize, col: usize) {
         let button_label = Rc::clone(&self.current_number);
         self.play_grid.borrow_mut()[row][col].set_callback(move |button: &mut Button| {
             button.set_label(&format!("{}", button_label.borrow()));
+            button.set_color(HIGHLIGHTED_BUTTON_COLOR);
         });
     }
 
-    fn show_squares(&self, row: usize, col: usize) {
+    fn show_square(&self, row: usize, col: usize) {
         let square_id = (row / 3) + (col / 3);
         let button_color = if square_id % 2 == 1 {DARK_BUTTON_COLOR} else {LIGHT_BUTTON_COLOR};
         self.play_grid.borrow_mut()[row][col].set_color(button_color);
