@@ -1,5 +1,5 @@
 mod gui;
 
 fn main() {
-    crate::gui::grid::Grid::new().display();
+    crate::gui::game::Game::new().play();
 }

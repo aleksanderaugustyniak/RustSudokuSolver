@@ -1,43 +1,63 @@
-use fltk::{app, prelude::*, button::*, enums::*, group::*, window};
+use fltk::{app, menu, prelude::*, button::*, enums::*, group::*, window};
 use std::cell::RefCell;
 use std::rc::Rc;
+use crate::gui::save_handler::Saver;
 
-const GRID_SIZE: usize = 9;
-type Board = [[Button; GRID_SIZE]; GRID_SIZE];
+const MENU_WIDTH: i32 = 25;
 const BUTTON_SIZE: i32 = 50;
-const GRID_OFFSET_FROM_LEFT: i32 = 30;
+const GRID_SIZE: usize = 9;
+const BOARD_OFFSET_LEFT: i32 = 30;
+const BOARD_OFFSET_TOP: i32 = 2*MENU_WIDTH;
+const WINDOW_WIDTH: i32 = MENU_WIDTH + BOARD_OFFSET_TOP*3 + BUTTON_SIZE*GRID_SIZE as i32;
 const LIGHT_BUTTON_COLOR: Color = Color::from_rgb(200, 200, 200);
 const DARK_BUTTON_COLOR: Color = Color::from_rgb(150, 150, 150);
 const HIGHLIGHTED_BUTTON_COLOR: Color = Color::from_rgb(100, 100, 250);
+type Board = [[Button; GRID_SIZE]; GRID_SIZE];
 
-pub struct Grid {
+pub struct Game {
+    app: app::App,
+    window: window::Window,
+    menu_bar: menu::MenuBar,
     current_number: Rc<RefCell<String>>,
     control_panel: Rc<RefCell<[Button; GRID_SIZE]>>,
     play_grid: Rc<RefCell<Board>>,
 }
 
-impl Grid{
+impl Game {
     pub fn new() -> Self {
-        Grid {
+        Game {
+            app: app::App::default(),
+            window: window::Window::new(100, 80, WINDOW_WIDTH, WINDOW_WIDTH, "Sudoku"),
+            menu_bar: menu::MenuBar::new(0, 0, WINDOW_WIDTH, MENU_WIDTH, ""),
             current_number: Rc::new(RefCell::new("1".to_string())),
             control_panel: Default::default(),
             play_grid: Default::default(),
         }
     }
 
-    pub fn display(&mut self) {
-        let app = app::App::default();
-        let mut window = window::Window::new(100, 100, 600, 600, "Sudoku");
-        window.set_color(Color::White);
-        
+    pub fn play(&mut self) {
+        self.window.set_color(Color::White);
+
+        self.display_menu();
         self.display_play_grid(); 
         self.display_control_panel();
 
-        window.make_resizable(true);
-        window.end();
-        window.show();
+        self.window.make_resizable(true);
+        self.window.end();
+        self.window.show();
+        self.app.run().unwrap();
+    }
 
-        app.run().unwrap();
+    fn display_menu(&mut self) {
+        let mut file_menu = menu::MenuButton::new(0, 0, 60, MENU_WIDTH, "File");
+        file_menu.add_choice("Save");
+        let play_grid_clone = Rc::clone(&self.play_grid);
+        file_menu.set_callback(move |_| {
+            if let Err(err) = Saver::to_json("boards/board.json", &play_grid_clone.borrow()) {
+                eprintln!("Error writing to JSON file: {}", err);
+            }
+
+        });
     }
 
     fn display_play_grid(&mut self) {
@@ -59,16 +79,16 @@ impl Grid{
     }
 
     fn display_control_panel(&mut self) {
-        for number in 0..9 {
-            self.control_panel.borrow_mut()[number] = Button::new(
-                GRID_OFFSET_FROM_LEFT + (number) as i32 * BUTTON_SIZE,
-                BUTTON_SIZE * GRID_SIZE as i32 + 50,
+        for (number, button) in self.control_panel.borrow_mut().iter_mut().enumerate() {
+            *button = Button::new(
+                BOARD_OFFSET_LEFT + (number) as i32 * BUTTON_SIZE,
+                BUTTON_SIZE * GRID_SIZE as i32 + BOARD_OFFSET_TOP + 25,
                 BUTTON_SIZE,
                 BUTTON_SIZE,
                 "",
             );
-            self.control_panel.borrow_mut()[number].set_label(&format!("{}", number + 1));
-            self.control_panel.borrow_mut()[number].set_color(LIGHT_BUTTON_COLOR);
+            button.set_label(&format!("{}", number + 1));
+            button.set_color(LIGHT_BUTTON_COLOR);
         }
         self.set_control_panel_callbacks();
     }
@@ -93,31 +113,30 @@ impl Grid{
 
     fn highlight_play_buttons(board: &mut Board, label: &str) {
         for (row, play_row) in board.iter_mut().enumerate() {
-            for (col, play_button) in play_row.iter_mut().enumerate() {
-                if play_button.label() == label {
-                    play_button.set_color(HIGHLIGHTED_BUTTON_COLOR);
-                    play_button.redraw();
-                } else {
-                    let square_id = (row / 3) + (col / 3);
-                    let button_color = if square_id % 2 == 1 {DARK_BUTTON_COLOR} else {LIGHT_BUTTON_COLOR};
-                    play_button.set_color(button_color);
-                    play_button.redraw();
-                }
+            for (col, button) in play_row.iter_mut().enumerate() {
+                let color = if button.label() == label {HIGHLIGHTED_BUTTON_COLOR} else {Self::get_square_color(row, col)};
+                button.set_color(color);
+                button.redraw();
             }
         }
     }
 
     fn display_button(&self, row: usize, col: usize) {
         self.play_grid.borrow_mut()[row][col] = Button::new(
-            GRID_OFFSET_FROM_LEFT + col as i32 * BUTTON_SIZE,
-            30 + row as i32 * BUTTON_SIZE,
+            BOARD_OFFSET_LEFT + col as i32 * BUTTON_SIZE,
+            BOARD_OFFSET_TOP + row as i32 * BUTTON_SIZE,
             BUTTON_SIZE,
             BUTTON_SIZE,
             "",
         );
 
         self.set_play_button_callback(row, col);
-        self.show_square(row, col);
+        self.play_grid.borrow_mut()[row][col].set_color(Self::get_square_color(row, col));
+    }
+
+    fn get_square_color( row: usize, col: usize) -> Color {
+        let square_id = (row / 3) + (col / 3);
+        if square_id % 2 == 1 {DARK_BUTTON_COLOR} else {LIGHT_BUTTON_COLOR}
     }
 
     fn set_play_button_callback(&self, row: usize, col: usize) {
@@ -126,11 +145,5 @@ impl Grid{
             button.set_label(&format!("{}", button_label.borrow()));
             button.set_color(HIGHLIGHTED_BUTTON_COLOR);
         });
-    }
-
-    fn show_square(&self, row: usize, col: usize) {
-        let square_id = (row / 3) + (col / 3);
-        let button_color = if square_id % 2 == 1 {DARK_BUTTON_COLOR} else {LIGHT_BUTTON_COLOR};
-        self.play_grid.borrow_mut()[row][col].set_color(button_color);
     }
 }
