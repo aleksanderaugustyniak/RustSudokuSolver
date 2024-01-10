@@ -3,6 +3,7 @@ use std::cell::RefCell;
 use std::rc::Rc;
 
 const GRID_SIZE: usize = 9;
+type Board = [[Button; GRID_SIZE]; GRID_SIZE];
 const BUTTON_SIZE: i32 = 50;
 const GRID_OFFSET_FROM_LEFT: i32 = 30;
 const LIGHT_BUTTON_COLOR: Color = Color::from_rgb(200, 200, 200);
@@ -12,7 +13,7 @@ const HIGHLIGHTED_BUTTON_COLOR: Color = Color::from_rgb(100, 100, 250);
 pub struct Grid {
     current_number: Rc<RefCell<String>>,
     control_panel: Rc<RefCell<[Button; GRID_SIZE]>>,
-    play_grid: Rc<RefCell<[[Button; GRID_SIZE]; GRID_SIZE]>>,
+    play_grid: Rc<RefCell<Board>>,
 }
 
 impl Grid{
@@ -84,21 +85,25 @@ impl Grid{
                     but.set_color(LIGHT_BUTTON_COLOR);
                     but.redraw();
                 }
-                for (row, play_row) in (*play_grid_clone.borrow_mut()).iter_mut().enumerate() {
-                    for (col, play_button) in play_row.iter_mut().enumerate() {
-                        if play_button.label() == button.label() {
-                            play_button.set_color(HIGHLIGHTED_BUTTON_COLOR);
-                            play_button.redraw();
-                        } else {
-                            let square_id = (row / 3) + (col / 3);
-                            let button_color = if square_id % 2 == 1 {DARK_BUTTON_COLOR} else {LIGHT_BUTTON_COLOR};
-                            play_button.set_color(button_color);
-                            play_button.redraw();
-                        }
-                    }
-                }
+                Self::highlight_play_buttons(&mut (*play_grid_clone.borrow_mut()), &button.label());
                 button.set_color(HIGHLIGHTED_BUTTON_COLOR);
             });
+        }
+    }
+
+    fn highlight_play_buttons(board: &mut Board, label: &str) {
+        for (row, play_row) in board.iter_mut().enumerate() {
+            for (col, play_button) in play_row.iter_mut().enumerate() {
+                if play_button.label() == label {
+                    play_button.set_color(HIGHLIGHTED_BUTTON_COLOR);
+                    play_button.redraw();
+                } else {
+                    let square_id = (row / 3) + (col / 3);
+                    let button_color = if square_id % 2 == 1 {DARK_BUTTON_COLOR} else {LIGHT_BUTTON_COLOR};
+                    play_button.set_color(button_color);
+                    play_button.redraw();
+                }
+            }
         }
     }
 
