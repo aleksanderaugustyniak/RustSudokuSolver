@@ -49,9 +49,10 @@ impl Game {
     }
 
     fn display_menu(&mut self) {
-        let mut file_menu = menu::MenuButton::new(0, 0, 60, MENU_WIDTH, "File");
+        let mut file_menu = menu::MenuButton::new(0, 0, 60, MENU_WIDTH, "Board");
         file_menu.add_choice("Save");
         file_menu.add_choice("Read");
+        file_menu.add_choice("Clear");
         let file_menu_clone = file_menu.clone();
         let  play_grid_clone = Rc::clone(&self.play_grid);
 
@@ -66,6 +67,10 @@ impl Game {
                     if let Err(err) = Saver::from_json("boards/board.json", &mut *play_grid_clone.borrow_mut()) {
                         eprintln!("Error updating from JSON file: {}", err);
                     }
+                }
+                2 => {
+                    Self::clear_board(&mut *play_grid_clone.borrow_mut());
+                    Self::clear_board_color(&mut *play_grid_clone.borrow_mut());
                 }
                 _ => {}
             }
@@ -87,6 +92,7 @@ impl Game {
                 self.display_button(row, col);
             }
         }
+        Self::clear_board_color(&mut self.play_grid.borrow_mut());
         grid.end();
     }
 
@@ -132,6 +138,23 @@ impl Game {
             }
         }
     }
+    
+    fn clear_board(board: &mut Board) {
+        for play_row in board.iter_mut() {
+            for button in play_row.iter_mut() {
+                button.set_label("");
+            }
+        }
+    }
+    
+    fn clear_board_color(board: &mut Board) {
+        for (row, play_row) in board.iter_mut().enumerate() {
+            for (col, button) in play_row.iter_mut().enumerate() {
+                button.set_color(Self::get_square_color(row, col));
+                button.redraw();
+            }
+        }
+    }
 
     fn display_button(&self, row: usize, col: usize) {
         self.play_grid.borrow_mut()[row][col] = Button::new(
@@ -143,7 +166,7 @@ impl Game {
         );
 
         self.set_play_button_callback(row, col);
-        self.play_grid.borrow_mut()[row][col].set_color(Self::get_square_color(row, col));
+        // self.play_grid.borrow_mut()[row][col].set_color(Self::get_square_color(row, col));
     }
 
     fn get_square_color( row: usize, col: usize) -> Color {
