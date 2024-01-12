@@ -19,7 +19,7 @@ pub struct Game {
     window: window::Window,
     menu_bar: menu::MenuBar,
     current_number: Rc<RefCell<String>>,
-    control_panel: Rc<RefCell<[Button; GRID_SIZE]>>,
+    control_panel: Rc<RefCell<[Button; GRID_SIZE + 1]>>,
     play_grid: Rc<RefCell<Board>>,
 }
 
@@ -108,6 +108,7 @@ impl Game {
             button.set_label(&format!("{}", number + 1));
             button.set_color(LIGHT_BUTTON_COLOR);
         }
+        self.control_panel.borrow_mut()[GRID_SIZE].set_label("");
         self.set_control_panel_callbacks();
     }
 
@@ -123,7 +124,8 @@ impl Game {
                     but.set_color(LIGHT_BUTTON_COLOR);
                     but.redraw();
                 }
-                Self::highlight_play_buttons(&mut (*play_grid_clone.borrow_mut()), &button.label());
+                if button.label() != "" {Self::highlight_play_buttons(&mut (*play_grid_clone.borrow_mut()), &button.label())}
+                    else{Self::clear_board_color(&mut (*play_grid_clone.borrow_mut()));};
                 button.set_color(HIGHLIGHTED_BUTTON_COLOR);
             });
         }
@@ -166,7 +168,6 @@ impl Game {
         );
 
         self.set_play_button_callback(row, col);
-        // self.play_grid.borrow_mut()[row][col].set_color(Self::get_square_color(row, col));
     }
 
     fn get_square_color( row: usize, col: usize) -> Color {
