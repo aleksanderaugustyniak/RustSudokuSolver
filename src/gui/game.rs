@@ -51,12 +51,24 @@ impl Game {
     fn display_menu(&mut self) {
         let mut file_menu = menu::MenuButton::new(0, 0, 60, MENU_WIDTH, "File");
         file_menu.add_choice("Save");
-        let play_grid_clone = Rc::clone(&self.play_grid);
-        file_menu.set_callback(move |_| {
-            if let Err(err) = Saver::to_json("boards/board.json", &play_grid_clone.borrow()) {
-                eprintln!("Error writing to JSON file: {}", err);
-            }
+        file_menu.add_choice("Read");
+        let file_menu_clone = file_menu.clone();
+        let  play_grid_clone = Rc::clone(&self.play_grid);
 
+        file_menu.set_callback(move |_| {
+            match file_menu_clone.value() {
+                0 => {
+                    if let Err(err) = Saver::to_json("boards/board.json", &play_grid_clone.borrow()) {
+                        eprintln!("Error writing to JSON file: {}", err);
+                    }
+                }
+                1 => {
+                    if let Err(err) = Saver::from_json("boards/board.json", &mut *play_grid_clone.borrow_mut()) {
+                        eprintln!("Error updating from JSON file: {}", err);
+                    }
+                }
+                _ => {}
+            }
         });
     }
 

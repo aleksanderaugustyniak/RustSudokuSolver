@@ -3,6 +3,7 @@ use serde::Serialize;
 use serde::Deserialize;
 
 const GRID_SIZE: usize = 9;
+type Labels = [[String; GRID_SIZE]; GRID_SIZE];
 
 #[derive(Serialize, Deserialize)]
 pub struct Saver {
@@ -24,7 +25,7 @@ impl Saver {
         Ok(())
     }
 
-    fn prepare_json_content(board: &[[Button; GRID_SIZE]; GRID_SIZE]) -> [[String; GRID_SIZE]; GRID_SIZE] {
+    fn prepare_json_content(board: &[[Button; GRID_SIZE]; GRID_SIZE]) -> Labels {
         let mut output : [[String; GRID_SIZE]; GRID_SIZE] = Default::default();
         for (row, buttons) in board.iter().enumerate() {
             for (col, button) in buttons.iter().enumerate() {
@@ -32,5 +33,19 @@ impl Saver {
             }
         }
         output
+    }
+
+    pub fn from_json(file_path: &str, board: &mut [[Button; GRID_SIZE]; GRID_SIZE]) -> Result<(), Box<dyn std::error::Error>>
+    {
+        let json_content = std::fs::read_to_string(file_path)?;
+        let labels: Labels = serde_json::from_str(&json_content)?;
+        for (row, buttons) in board.iter_mut().enumerate() {
+            for (col, button) in buttons.iter_mut().enumerate() {
+                button.set_label(&labels[row][col]);
+                button.redraw();
+            }
+        }
+
+        Ok(())
     }
 }
