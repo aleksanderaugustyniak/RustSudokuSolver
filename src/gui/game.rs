@@ -1,6 +1,7 @@
-use fltk::{app, menu, prelude::*, enums::*, window};
+use fltk::{app, prelude::*, enums::*, window};
 use std::cell::RefCell;
 use std::rc::Rc;
+use crate::gui::menu::Menu;
 use crate::gui::play_board::PlayBoard;
 use crate::gui::control_panel::ControlPanel;
 
@@ -13,7 +14,7 @@ const WINDOW_WIDTH: i32 = MENU_WIDTH + BOARD_OFFSET_TOP*3 + BUTTON_SIZE*GRID_SIZ
 pub struct Game {
     app: app::App,
     window: window::Window,
-    menu_bar: menu::MenuBar,
+    menu: Menu,
     play_board: Rc<RefCell<PlayBoard>>,
     control_panel: Rc<RefCell<ControlPanel>>,
 }
@@ -22,54 +23,33 @@ impl Game {
     pub fn new() -> Self {
         let play_board = Rc::new(RefCell::new(PlayBoard::new()));
         let control_panel = Rc::new(RefCell::new(ControlPanel::new(Rc::clone(&play_board))));
+        let menu = Menu::new(Rc::clone(&play_board));
         
         Game {
             app: app::App::default(),
             window: window::Window::new(100, 80, WINDOW_WIDTH, WINDOW_WIDTH, "Sudoku"),
-            menu_bar: menu::MenuBar::new(0, 0, WINDOW_WIDTH, MENU_WIDTH, ""),
+            menu,
             play_board,
             control_panel,
         }
     }
 
     pub fn play(&mut self) {
-        self.window.set_color(Color::White);
+        self.display_game();
+        self.init_window();
+    }
 
-        self.display_menu();
+    fn display_game(&mut self) {
+        self.menu.display();
         self.play_board.borrow_mut().display(); 
         self.control_panel.borrow_mut().display();
+    }
 
+    fn init_window(&mut self) {
+        self.window.set_color(Color::White);
         self.window.make_resizable(true);
         self.window.end();
         self.window.show();
         self.app.run().unwrap();
-    }
-
-    fn display_menu(&mut self) {
-        let mut file_menu = menu::MenuButton::new(0, 0, 60, MENU_WIDTH, "Board");
-        file_menu.add_choice("Save");
-        file_menu.add_choice("Read");
-        file_menu.add_choice("Clear");
-        let file_menu_clone = file_menu.clone();
-        let play_board_clone = Rc::clone(&self.play_board);
-
-        file_menu.set_callback(move |_| {
-            match file_menu_clone.value() {
-                0 => {
-                    if let Err(err) = play_board_clone.borrow().to_json() {
-                        eprintln!("Error writing to JSON file: {}", err);
-                    }
-                }
-                1 => {
-                    if let Err(err) = play_board_clone.borrow_mut().from_json() {
-                        eprintln!("Error updating from JSON file: {}", err);
-                    }
-                }
-                2 => {
-                    (*play_board_clone.borrow_mut()).clear();
-                }
-                _ => {}
-            }
-        });
     }
 }

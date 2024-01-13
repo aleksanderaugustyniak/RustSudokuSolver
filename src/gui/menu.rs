@@ -1,0 +1,60 @@
+use fltk::{menu, prelude::*};
+use std::cell::RefCell;
+use std::rc::Rc;
+use crate::gui::play_board::PlayBoard;
+
+
+const MENU_WIDTH: i32 = 25;
+const BUTTON_SIZE: i32 = 50;
+const GRID_SIZE: usize = 9;
+const BOARD_OFFSET_TOP: i32 = 2*MENU_WIDTH;
+const WINDOW_WIDTH: i32 = MENU_WIDTH + BOARD_OFFSET_TOP*3 + BUTTON_SIZE*GRID_SIZE as i32;
+
+pub struct Menu {
+    menu_bar: menu::MenuBar,
+    file_menu: menu::MenuButton,
+    board: Rc<RefCell<PlayBoard>>,
+}
+
+impl Menu {
+    pub fn new(play_board: Rc<RefCell<PlayBoard>>) -> Self {
+        Menu {
+            menu_bar: Default::default(),
+            file_menu: Default::default(),
+            board: Rc::clone(&play_board),
+        }
+    }
+
+    pub fn display(&mut self) {
+        self.menu_bar = menu::MenuBar::new(0, 0, WINDOW_WIDTH, MENU_WIDTH, "");
+        self.file_menu = menu::MenuButton::new(0, 0, 60, MENU_WIDTH, "Board");
+        self.file_menu.add_choice("Save");
+        self.file_menu.add_choice("Read");
+        self.file_menu.add_choice("Clear");
+        self.set_file_callback();
+    }
+
+    fn set_file_callback(&mut self) {
+        let file_menu_clone = self.file_menu.clone();
+        let board_clone = Rc::clone(&self.board);
+
+        self.file_menu.set_callback(move |_| {
+            match file_menu_clone.value() {
+                0 => {
+                    if let Err(err) = board_clone.borrow().to_json() {
+                        eprintln!("Error writing to JSON file: {}", err);
+                    }
+                }
+                1 => {
+                    if let Err(err) = board_clone.borrow_mut().from_json() {
+                        eprintln!("Error updating from JSON file: {}", err);
+                    }
+                }
+                2 => {
+                    (*board_clone.borrow_mut()).clear();
+                }
+                _ => {}
+            }
+        });
+    }
+}
