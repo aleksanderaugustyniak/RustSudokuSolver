@@ -1,14 +1,13 @@
-use fltk::{menu, prelude::*};
+use fltk::{ menu, prelude::* };
 use std::cell::RefCell;
 use std::rc::Rc;
 use crate::gui::play_board::PlayBoard;
 
-
 const MENU_WIDTH: i32 = 25;
 const BUTTON_SIZE: i32 = 50;
 const GRID_SIZE: usize = 9;
-const BOARD_OFFSET_TOP: i32 = 2*MENU_WIDTH;
-const WINDOW_WIDTH: i32 = MENU_WIDTH + BOARD_OFFSET_TOP*3 + BUTTON_SIZE*GRID_SIZE as i32;
+const BOARD_OFFSET_TOP: i32 = 2 * MENU_WIDTH;
+const WINDOW_WIDTH: i32 = MENU_WIDTH + BOARD_OFFSET_TOP * 3 + BUTTON_SIZE * (GRID_SIZE as i32);
 
 pub struct Menu {
     menu_bar: menu::MenuBar,

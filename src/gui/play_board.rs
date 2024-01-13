@@ -1,4 +1,4 @@
-use fltk::{prelude::*, button::*, group::*, enums::*};
+use fltk::{ prelude::*, button::*, group::*, enums::* };
 use std::cell::RefCell;
 use std::rc::Rc;
 use crate::gui::save_handler::Saver;
@@ -7,7 +7,7 @@ const MENU_WIDTH: i32 = 25;
 const BUTTON_SIZE: i32 = 50;
 const GRID_SIZE: usize = 9;
 const BOARD_OFFSET_LEFT: i32 = 30;
-const BOARD_OFFSET_TOP: i32 = 2*MENU_WIDTH;
+const BOARD_OFFSET_TOP: i32 = 2 * MENU_WIDTH;
 const LIGHT_BUTTON_COLOR: Color = Color::from_rgb(200, 200, 200);
 const DARK_BUTTON_COLOR: Color = Color::from_rgb(150, 150, 150);
 const HIGHLIGHTED_BUTTON_COLOR: Color = Color::from_rgb(100, 100, 250);
@@ -30,11 +30,12 @@ impl PlayBoard {
         let mut grid = Pack::new(
             10,
             10,
-            BUTTON_SIZE * GRID_SIZE as i32,
-            BUTTON_SIZE * GRID_SIZE as i32,
-            "");
+            BUTTON_SIZE * (GRID_SIZE as i32),
+            BUTTON_SIZE * (GRID_SIZE as i32),
+            ""
+        );
         grid.make_resizable(true);
-            
+
         for row in 0..GRID_SIZE {
             for col in 0..GRID_SIZE {
                 grid.end();
@@ -51,11 +52,11 @@ impl PlayBoard {
 
     fn display_button(&self, row: usize, col: usize) {
         self.play_grid.borrow_mut()[row][col] = Button::new(
-            BOARD_OFFSET_LEFT + col as i32 * BUTTON_SIZE,
-            BOARD_OFFSET_TOP + row as i32 * BUTTON_SIZE,
+            BOARD_OFFSET_LEFT + (col as i32) * BUTTON_SIZE,
+            BOARD_OFFSET_TOP + (row as i32) * BUTTON_SIZE,
             BUTTON_SIZE,
             BUTTON_SIZE,
-            "",
+            ""
         );
 
         self.set_callback(row, col);
@@ -87,15 +88,19 @@ impl PlayBoard {
         self.clear_color();
     }
 
-    fn get_square_color( row: usize, col: usize) -> Color {
-        let square_id = (row / 3) + (col / 3);
-        if square_id % 2 == 1 {DARK_BUTTON_COLOR} else {LIGHT_BUTTON_COLOR}
+    fn get_square_color(row: usize, col: usize) -> Color {
+        let square_id = row / 3 + col / 3;
+        if square_id % 2 == 1 {
+            DARK_BUTTON_COLOR
+        } else {
+            LIGHT_BUTTON_COLOR
+        }
     }
 
     pub fn to_json(&self) -> Result<(), Box<dyn std::error::Error>> {
         Saver::to_json("boards/board.json", &self.play_grid.borrow())
     }
-   
+
     pub fn from_json(&self) -> Result<(), Box<dyn std::error::Error>> {
         Saver::from_json("boards/board.json", &mut *self.play_grid.borrow_mut())
     }
@@ -103,7 +108,11 @@ impl PlayBoard {
     pub fn highlight(&mut self, label: &str) {
         for (row, play_row) in self.play_grid.borrow_mut().iter_mut().enumerate() {
             for (col, button) in play_row.iter_mut().enumerate() {
-                let color = if button.label() == label {HIGHLIGHTED_BUTTON_COLOR} else {Self::get_square_color(row, col)};
+                let color = if button.label() == label {
+                    HIGHLIGHTED_BUTTON_COLOR
+                } else {
+                    Self::get_square_color(row, col)
+                };
                 button.set_color(color);
                 button.redraw();
             }
