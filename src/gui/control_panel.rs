@@ -1,16 +1,15 @@
-use fltk::{ prelude::*, button::*, enums::* };
+use fltk::{ prelude::*, button::* };
 use std::cell::RefCell;
 use std::rc::Rc;
+use crate::gui::board::GRID_SIZE;
+use crate::gui::colors::*;
 use crate::gui::play_board::PlayBoard;
 
 const MENU_WIDTH: i32 = 25;
-const GRID_SIZE: usize = 9;
 const BUTTON_SIZE: i32 = 50;
 const BOARD_OFFSET_LEFT: i32 = 30;
 const BOARD_OFFSET_TOP: i32 = 2 * MENU_WIDTH;
 const TOP_OFFSET: i32 = BUTTON_SIZE * (GRID_SIZE as i32) + BOARD_OFFSET_TOP + 25;
-const LIGHT_BUTTON_COLOR: Color = Color::from_rgb(200, 200, 200);
-const HIGHLIGHTED_BUTTON_COLOR: Color = Color::from_rgb(100, 100, 250);
 
 pub struct ControlPanel {
     panel: Rc<RefCell<[Button; GRID_SIZE]>>,
@@ -37,6 +36,7 @@ impl ControlPanel {
                 ""
             );
             button.set_label(&format!("{}", number + 1));
+            button.set_label_size(22);
             button.set_color(LIGHT_BUTTON_COLOR);
         }
 
@@ -50,8 +50,9 @@ impl ControlPanel {
             TOP_OFFSET,
             BUTTON_SIZE,
             BUTTON_SIZE,
-            ""
+            "123\n456\n789"
         );
+        self.eraser.borrow_mut().set_label_size(10);
 
         let panel_clone = Rc::clone(&self.panel);
         let board_clone = Rc::clone(&self.board);

@@ -1,17 +1,14 @@
 use fltk::{ prelude::*, button::*, group::*, enums::* };
 use std::cell::RefCell;
 use std::rc::Rc;
+use crate::gui::board::*;
+use crate::gui::colors::*;
 use crate::gui::save_handler::Saver;
 
 const MENU_WIDTH: i32 = 25;
 const BUTTON_SIZE: i32 = 50;
-const GRID_SIZE: usize = 9;
 const BOARD_OFFSET_LEFT: i32 = 30;
 const BOARD_OFFSET_TOP: i32 = 2 * MENU_WIDTH;
-const LIGHT_BUTTON_COLOR: Color = Color::from_rgb(200, 200, 200);
-const DARK_BUTTON_COLOR: Color = Color::from_rgb(150, 150, 150);
-const HIGHLIGHTED_BUTTON_COLOR: Color = Color::from_rgb(100, 100, 250);
-type Board = [[Button; GRID_SIZE]; GRID_SIZE];
 
 pub struct PlayBoard {
     play_grid: Rc<RefCell<Board>>,

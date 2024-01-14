@@ -5,11 +5,7 @@ use crate::gui::menu::Menu;
 use crate::gui::play_board::PlayBoard;
 use crate::gui::control_panel::ControlPanel;
 
-const MENU_WIDTH: i32 = 25;
-const BUTTON_SIZE: i32 = 50;
-const GRID_SIZE: usize = 9;
-const BOARD_OFFSET_TOP: i32 = 2 * MENU_WIDTH;
-const WINDOW_WIDTH: i32 = MENU_WIDTH + BOARD_OFFSET_TOP * 3 + BUTTON_SIZE * (GRID_SIZE as i32);
+const WINDOW_WIDTH: i32 = 650;
 
 pub struct Game {
     app: app::App,
@@ -21,13 +17,14 @@ pub struct Game {
 
 impl Game {
     pub fn new() -> Self {
+        let window = window::Window::new(100, 80, WINDOW_WIDTH, WINDOW_WIDTH, "Sudoku");
         let play_board = Rc::new(RefCell::new(PlayBoard::new()));
         let control_panel = Rc::new(RefCell::new(ControlPanel::new(Rc::clone(&play_board))));
-        let menu = Menu::new(Rc::clone(&play_board));
+        let menu = Menu::new(Rc::clone(&play_board), WINDOW_WIDTH);
 
         Game {
             app: app::App::default(),
-            window: window::Window::new(100, 80, WINDOW_WIDTH, WINDOW_WIDTH, "Sudoku"),
+            window,
             menu,
             play_board,
             control_panel,
