@@ -6,7 +6,7 @@ use crate::gui::play_board::PlayBoard;
 const MENU_WIDTH: i32 = 25;
 
 pub struct Menu {
-    menu_bar: menu::MenuBar,
+    _menu_bar: menu::MenuBar,
     file_menu: menu::MenuButton,
     board: Rc<RefCell<PlayBoard>>,
 }
@@ -14,7 +14,7 @@ pub struct Menu {
 impl Menu {
     pub fn new(play_board: Rc<RefCell<PlayBoard>>, window_width: i32) -> Self {
         Menu {
-            menu_bar: menu::MenuBar::new(0, 0, window_width, MENU_WIDTH, ""),
+            _menu_bar: menu::MenuBar::new(0, 0, window_width, MENU_WIDTH, ""),
             file_menu: menu::MenuButton::new(0, 0, 60, MENU_WIDTH, "Board"),
             board: Rc::clone(&play_board),
         }

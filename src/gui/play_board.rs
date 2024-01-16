@@ -3,7 +3,7 @@ use std::cell::RefCell;
 use std::rc::Rc;
 use crate::gui::board::*;
 use crate::gui::colors::*;
-use crate::gui::save_handler::Saver;
+use crate::gui::save_handler::*;
 
 const MENU_WIDTH: i32 = 25;
 const BUTTON_SIZE: i32 = 50;
@@ -95,11 +95,11 @@ impl PlayBoard {
     }
 
     pub fn to_json(&self) -> Result<(), Box<dyn std::error::Error>> {
-        Saver::to_json("boards/board.json", &self.play_grid.borrow())
+        to_json("boards/board.json", &self.play_grid.borrow())
     }
 
     pub fn from_json(&self) -> Result<(), Box<dyn std::error::Error>> {
-        Saver::from_json("boards/board.json", &mut *self.play_grid.borrow_mut())
+        from_json("boards/board.json", &mut *self.play_grid.borrow_mut())
     }
 
     pub fn highlight(&mut self, label: &str) {

@@ -50,7 +50,7 @@ impl ControlPanel {
             TOP_OFFSET,
             BUTTON_SIZE,
             BUTTON_SIZE,
-            "123\n456\n789"
+            ""
         );
         self.eraser.borrow_mut().set_label_size(10);
 
