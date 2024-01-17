@@ -89,14 +89,14 @@ fn check_possibilities(possibilities: &Possibilities, expected: &Possibilities) 
 
 #[test]
 fn test_intial_possibilities() {
-    let mut sut = Solver::new(LABELS1);
+    let sut = Solver::new(LABELS1);
     check_possibilities(&sut.get_possibilities(), &POSSIBILITIES1_INITIAL);
 }
 
 #[test]
 fn test_possibilities() {
     let mut sut = Solver::new(LABELS1);
-    sut.solve();
+    sut.fill_possibilities();
     check_possibilities(&sut.get_possibilities(), &POSSIBILITIES1);
 }
 
