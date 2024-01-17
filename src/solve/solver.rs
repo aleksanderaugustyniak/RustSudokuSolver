@@ -116,18 +116,21 @@ impl Solver {
 
     pub fn solve(&mut self) {
         self.fill_possibilities();
-        self.check_cell_possibilities();
+        while self.check_cell_possibilities() {}
     }
 
-    fn check_cell_possibilities(&mut self) {
+    fn check_cell_possibilities(&mut self) -> bool {
+        let mut any_cell_filled: bool = false;
         for row in 0..GRID_SIZE {
             for col in 0..GRID_SIZE {
                 if self.possibilities[row][col].count_ones() == 1 {
                     let value = (self.possibilities[row][col].trailing_zeros() + 1) as u8;
                     self.set(row, col, value);
+                    any_cell_filled = true;
                 }
             }
         }
+        any_cell_filled
     }
 
     fn set(&mut self, row: usize, col: usize, value: u8) {
