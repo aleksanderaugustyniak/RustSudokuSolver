@@ -46,7 +46,6 @@ impl Solver {
             self.set_column_possibilities(i);
         }
         self.set_squares_possibilities();
-        self.check_cell_possibilities();
     }
 
     fn set_row_possibilities(&mut self, row: usize) {
@@ -84,7 +83,7 @@ impl Solver {
                 if self.board[row][col] != 0 {
                     continue;
                 }
-                *possibility &= self.square_possibilities[3 * (row / 3) + col / 3];
+                *possibility &= self.square_possibilities[Self::get_square_index(row, col)];
             }
         }
     }
@@ -118,18 +117,45 @@ impl Solver {
     pub fn solve(&mut self) {
         self.fill_possibilities();
         self.check_cell_possibilities();
-        //TODO:check row, col and squares and iterate
     }
 
     fn check_cell_possibilities(&mut self) {
-        for (row, x) in self.possibilities.iter().enumerate() {
-            for (col, possibility) in x.iter().enumerate() {
-                if possibility.count_ones() == 1 {
-                    self.board[row][col] = (possibility.trailing_zeros() + 1) as u8;
-                    //TODO: adjust possibilities
+        for row in 0..GRID_SIZE {
+            for col in 0..GRID_SIZE {
+                if self.possibilities[row][col].count_ones() == 1 {
+                    let value = (self.possibilities[row][col].trailing_zeros() + 1) as u8;
+                    self.set(row, col, value);
                 }
             }
         }
+    }
+
+    fn set(&mut self, row: usize, col: usize, value: u8) {
+        self.board[row][col] = value;
+
+        for cell in self.possibilities[row].iter_mut() {
+            Self::unset_possibility(cell, value);
+        }
+        Self::unset_possibility(&mut self.row_possibilities[row], value);
+
+        for row_pos in self.possibilities.iter_mut() {
+            Self::unset_possibility(&mut row_pos[col], value);
+        }
+        Self::unset_possibility(&mut self.col_possibilities[col], value);
+
+        let square_index = Self::get_square_index(row, col);
+        for x in 3 * (square_index / 3)..3 * (square_index / 3 + 1) {
+            for y in 3 * (square_index % 3)..3 * ((square_index % 3) + 1) {
+                Self::unset_possibility(&mut self.possibilities[x][y], value);
+            }
+        }
+        Self::unset_possibility(&mut self.square_possibilities[square_index], value);
+
+        self.possibilities[row][col] = 0;
+    }
+
+    fn get_square_index(row: usize, col: usize) -> usize {
+        3 * (row / 3) + col / 3
     }
 }
 
