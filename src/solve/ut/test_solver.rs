@@ -12,6 +12,18 @@ const LABELS1: Labels = [
     [0, 0, 0, 0, 8, 0, 0, 7, 9],
 ];
 
+const SOLUTION1: Labels = [
+    [5, 3, 0, 0, 7, 0, 0, 0, 0],
+    [6, 0, 0, 1, 9, 5, 0, 0, 0],
+    [0, 9, 8, 0, 0, 0, 0, 6, 0],
+    [8, 0, 0, 0, 6, 0, 0, 0, 3],
+    [4, 0, 0, 8, 5, 3, 0, 0, 1],
+    [7, 0, 0, 0, 2, 0, 0, 0, 6],
+    [0, 6, 0, 0, 0, 7, 2, 8, 4],
+    [0, 0, 0, 4, 1, 9, 0, 3, 5],
+    [0, 0, 0, 0, 8, 0, 0, 7, 9],
+];
+
 const POSSIBILITIES1: Possibilities = [
     [
         0, 0, 0b000_001_011, 0b000_100_010, 0, 0b010_101_010, 0b110_001_001, 0b100_001_011,
@@ -77,10 +89,25 @@ fn check_possibilities(possibilities: &Possibilities, expected: &Possibilities) 
         for (col, possibility) in row_pos.iter().enumerate() {
             assert!(
                 &possibility.eq(&expected[row][col]),
-                "Wrong possibility on row:{}, col:{}, found:{:b}, expected:{:b}",
+                "Wrong possibility on row:{}, col:{}, actual:{:b}, expected:{:b}",
                 row,
                 col,
                 &possibility,
+                &expected[row][col]
+            );
+        }
+    }
+}
+
+fn check_solution(input: &Labels, expected: &Labels) {
+    for (row, row_input) in input.iter().enumerate() {
+        for (col, cell) in row_input.iter().enumerate() {
+            assert!(
+                &cell.eq(&expected[row][col]),
+                "Wrong solution on row:{}, col:{}, actual:{}, expected:{}",
+                row,
+                col,
+                &cell,
                 &expected[row][col]
             );
         }
@@ -98,6 +125,13 @@ fn test_possibilities() {
     let mut sut = Solver::new(LABELS1);
     sut.fill_possibilities();
     check_possibilities(&sut.get_possibilities(), &POSSIBILITIES1);
+}
+
+#[test]
+fn test_solution() {
+    let mut sut = Solver::new(LABELS1);
+    sut.fill_possibilities();
+    check_solution(&sut.get_solution(), &SOLUTION1);
 }
 
 const LABELS2: Labels = [

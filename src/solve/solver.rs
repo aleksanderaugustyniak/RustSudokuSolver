@@ -42,13 +42,14 @@ impl Solver {
 
     pub fn fill_possibilities(&mut self) {
         for i in 0..GRID_SIZE {
-            self.check_row(i);
-            self.check_column(i);
+            self.set_row_possibilities(i);
+            self.set_column_possibilities(i);
         }
-        self.check_squares();
+        self.set_squares_possibilities();
+        self.check_cell_possibilities();
     }
 
-    fn check_row(&mut self, row: usize) {
+    fn set_row_possibilities(&mut self, row: usize) {
         for cell in self.board[row].iter() {
             if *cell == 0 {
                 continue;
@@ -60,7 +61,7 @@ impl Solver {
         }
     }
 
-    fn check_column(&mut self, col: usize) {
+    fn set_column_possibilities(&mut self, col: usize) {
         for row in self.board.iter() {
             if row[col] == 0 {
                 continue;
@@ -72,10 +73,10 @@ impl Solver {
         }
     }
 
-    fn check_squares(&mut self) {
+    fn set_squares_possibilities(&mut self) {
         for square_x in 0..3 {
             for square_y in 0..3 {
-                self.unset_square_possibilities(square_x, square_y);
+                self.set_square_possibilities(square_x, square_y);
             }
         }
         for (row, pos_row) in self.possibilities.iter_mut().enumerate() {
@@ -88,7 +89,7 @@ impl Solver {
         }
     }
 
-    fn unset_square_possibilities(&mut self, x: usize, y: usize) {
+    fn set_square_possibilities(&mut self, x: usize, y: usize) {
         for row in 3 * x..3 * (x + 1) {
             for col in 3 * y..3 * (y + 1) {
                 if self.board[row][col] == 0 {
@@ -106,8 +107,29 @@ impl Solver {
         &self.possibilities
     }
 
+    pub fn get_solution(&self) -> Labels {
+        self.board
+    }
+
     fn unset_possibility(possibility: &mut u16, bit_index: u8) {
         *possibility &= !(1 << (bit_index - 1));
+    }
+
+    pub fn solve(&mut self) {
+        self.fill_possibilities();
+        self.check_cell_possibilities();
+        //TODO:check row, col and squares and iterate
+    }
+
+    fn check_cell_possibilities(&mut self) {
+        for (row, x) in self.possibilities.iter().enumerate() {
+            for (col, possibility) in x.iter().enumerate() {
+                if possibility.count_ones() == 1 {
+                    self.board[row][col] = (possibility.trailing_zeros() + 1) as u8;
+                    //TODO: adjust possibilities
+                }
+            }
+        }
     }
 }
 
