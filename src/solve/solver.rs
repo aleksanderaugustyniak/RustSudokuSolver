@@ -107,13 +107,19 @@ impl Solver {
         self.puzzle
     }
 
+    // bitset methods -> consider extraction
     fn unset_note(note: &mut u16, bit: u8) {
         *note &= !(1 << (bit - 1));
     }
 
+    fn is_set(note: &u16, position: usize) -> bool {
+        let mask = 1 << (position - 1);
+        (*note & mask) != 0
+    }
+
     pub fn solve(&mut self) {
         self.fill_notes();
-        while self.set_obvious_ones() {}
+        while self.set_obvious_ones() || self.set_hiden_ones() {}
     }
 
     fn set_obvious_ones(&mut self) -> bool {
@@ -128,6 +134,55 @@ impl Solver {
             }
         }
         any_cell_filled
+    }
+
+    fn set_hiden_ones(&mut self) -> bool {
+        let mut any_cell_filled: bool = false;
+        for index in 0..GRID_SIZE {
+            for value in 1..=GRID_SIZE {
+                any_cell_filled |= self.set_hidden_in_row(index, value);
+                any_cell_filled |= self.set_hidden_in_col(index, value);
+            }
+        }
+        any_cell_filled
+    }
+
+    fn set_hidden_in_row(&mut self, row: usize, value: usize) -> bool {
+        if !Self::is_set(&self.row_notes[row], value) {
+            return false;
+        }
+        let mut count_values = 0;
+        let mut col_found = 0;
+        for (col, cell_note) in self.notes[row].iter().enumerate() {
+            if Self::is_set(cell_note, value) {
+                count_values += 1;
+                col_found = col;
+            }
+        }
+        if count_values == 1 {
+            self.set(row, col_found, value as u8);
+            return true;
+        }
+        false
+    }
+
+    fn set_hidden_in_col(&mut self, col: usize, value: usize) -> bool {
+        if !Self::is_set(&self.col_notes[col], value) {
+            return false;
+        }
+        let mut count_values = 0;
+        let mut row_found = 0;
+        for (row, row_cells) in self.notes.iter().enumerate() {
+            if Self::is_set(&row_cells[col], value) {
+                count_values += 1;
+                row_found = row;
+            }
+        }
+        if count_values == 1 {
+            self.set(row_found, col, value as u8);
+            return true;
+        }
+        false
     }
 
     fn set(&mut self, row: usize, col: usize, value: u8) {
