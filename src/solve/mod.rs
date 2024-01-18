@@ -1,2 +1,2 @@
 pub mod solver;
-pub mod labels;
+pub mod puzzle;

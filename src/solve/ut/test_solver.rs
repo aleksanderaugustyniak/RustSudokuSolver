@@ -1,6 +1,6 @@
 use super::*;
 
-const LABELS1: Labels = [
+const PUZZLE1: Puzzle = [
     [5, 3, 0, 0, 7, 0, 0, 0, 0],
     [6, 0, 0, 1, 9, 5, 0, 0, 0],
     [0, 9, 8, 0, 0, 0, 0, 6, 0],
@@ -12,7 +12,7 @@ const LABELS1: Labels = [
     [0, 0, 0, 0, 8, 0, 0, 7, 9],
 ];
 
-const SOLUTION1: Labels = [
+const SOLUTION1: Puzzle = [
     [5, 3, 4, 6, 7, 8, 9, 1, 2],
     [6, 7, 2, 1, 9, 5, 3, 4, 8],
     [1, 9, 8, 3, 4, 2, 5, 6, 7],
@@ -24,7 +24,7 @@ const SOLUTION1: Labels = [
     [3, 4, 5, 2, 8, 6, 1, 7, 9],
 ];
 
-const POSSIBILITIES1: Possibilities = [
+const NOTES1: Notes = [
     [
         0, 0, 0b000_001_011, 0b000_100_010, 0, 0b010_101_010, 0b110_001_001, 0b100_001_011,
         0b010_001_010,
@@ -54,7 +54,7 @@ const POSSIBILITIES1: Possibilities = [
     ],
 ];
 
-const POSSIBILITIES1_INITIAL: Possibilities = [
+const NOTES1_INITIAL: Notes = [
     [
         0, 0, 0b111_111_111, 0b111_111_111, 0, 0b111_111_111, 0b111_111_111, 0b111_111_111,
         0b111_111_111,
@@ -84,22 +84,22 @@ const POSSIBILITIES1_INITIAL: Possibilities = [
     ],
 ];
 
-fn check_possibilities(possibilities: &Possibilities, expected: &Possibilities) {
-    for (row, row_pos) in possibilities.iter().enumerate() {
-        for (col, possibility) in row_pos.iter().enumerate() {
+fn check_notes(notes: &Notes, expected: &Notes) {
+    for (row, row_pos) in notes.iter().enumerate() {
+        for (col, note) in row_pos.iter().enumerate() {
             assert!(
-                &possibility.eq(&expected[row][col]),
-                "Wrong possibility on row:{}, col:{}, actual:{:b}, expected:{:b}",
+                &note.eq(&expected[row][col]),
+                "Wrong note on row:{}, col:{}, actual:{:b}, expected:{:b}",
                 row,
                 col,
-                &possibility,
+                &note,
                 &expected[row][col]
             );
         }
     }
 }
 
-fn check_solution(input: &Labels, expected: &Labels) {
+fn check_solution(input: &Puzzle, expected: &Puzzle) {
     for (row, row_input) in input.iter().enumerate() {
         for (col, cell) in row_input.iter().enumerate() {
             assert!(
@@ -115,26 +115,26 @@ fn check_solution(input: &Labels, expected: &Labels) {
 }
 
 #[test]
-fn test_intial_possibilities() {
-    let sut = Solver::new(LABELS1);
-    check_possibilities(&sut.get_possibilities(), &POSSIBILITIES1_INITIAL);
+fn test_intial_notes() {
+    let sut = Solver::new(PUZZLE1);
+    check_notes(&sut.get_notes(), &NOTES1_INITIAL);
 }
 
 #[test]
-fn test_possibilities() {
-    let mut sut = Solver::new(LABELS1);
-    sut.fill_possibilities();
-    check_possibilities(&sut.get_possibilities(), &POSSIBILITIES1);
+fn test_notes() {
+    let mut sut = Solver::new(PUZZLE1);
+    sut.fill_notes();
+    check_notes(&sut.get_notes(), &NOTES1);
 }
 
 #[test]
-fn test_solution() {
-    let mut sut = Solver::new(LABELS1);
+fn test_obvious_puzzle() {
+    let mut sut = Solver::new(PUZZLE1);
     sut.solve();
     check_solution(&sut.get_solution(), &SOLUTION1);
 }
 
-// const LABELS2: Labels = [
+// const PUZZLE2: Puzzle = [
 //     [3, 0, 9, 0, 0, 0, 0, 0, 2],
 //     [0, 0, 0, 0, 0, 7, 6, 0, 0],
 //     [0, 6, 0, 0, 0, 2, 9, 0, 0],
@@ -146,7 +146,7 @@ fn test_solution() {
 //     [8, 0, 0, 0, 0, 0, 2, 0, 6],
 // ];
 
-// const LABELS3: Labels = [
+// const PUZZLE3: Puzzle = [
 //     [0, 4, 3, 0, 8, 0, 0, 1, 0],
 //     [0, 0, 0, 0, 0, 0, 0, 4, 0],
 //     [6, 0, 0, 5, 0, 0, 0, 7, 3],
