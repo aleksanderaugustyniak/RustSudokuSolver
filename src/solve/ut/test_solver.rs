@@ -114,6 +114,12 @@ fn check_solution(input: &Puzzle, expected: &Puzzle) {
     }
 }
 
+fn test_solve(puzzle: &Puzzle, expected: &Puzzle) {
+    let mut sut = Solver::new(*puzzle);
+    sut.solve();
+    check_solution(&sut.get_solution(), &expected);
+}
+
 #[test]
 fn test_intial_notes() {
     let sut = Solver::new(PUZZLE1);
@@ -129,9 +135,7 @@ fn test_notes() {
 
 #[test]
 fn test_obvious_puzzle() {
-    let mut sut = Solver::new(PUZZLE1);
-    sut.solve();
-    check_solution(&sut.get_solution(), &SOLUTION1);
+    test_solve(&PUZZLE1, &SOLUTION1);
 }
 
 #[test]
@@ -160,9 +164,7 @@ fn test_obvious_puzzle_2() {
         [1, 2, 3, 9, 7, 6, 8, 4, 5],
     ];
 
-    let mut sut = Solver::new(puzzle2);
-    sut.solve();
-    check_solution(&sut.get_solution(), &solution2);
+    test_solve(&puzzle2, &solution2);
 }
 
 #[test]
@@ -191,7 +193,76 @@ fn test_easy_puzzle() {
         [7, 2, 1, 9, 6, 3, 5, 8, 4],
     ];
 
-    let mut sut = Solver::new(puzzle);
-    sut.solve();
-    check_solution(&sut.get_solution(), &solution);
+    test_solve(&puzzle, &solution);
+}
+
+#[test]
+fn test_medium_puzzle() {
+    let puzzle: Puzzle = [
+        [0, 2, 0, 4, 0, 0, 3, 0, 0],
+        [0, 0, 0, 8, 0, 7, 0, 0, 0],
+        [0, 0, 3, 0, 0, 2, 0, 5, 0],
+        [6, 4, 0, 0, 0, 0, 0, 3, 7],
+        [0, 0, 7, 0, 0, 0, 9, 0, 0],
+        [2, 5, 0, 0, 0, 0, 0, 8, 1],
+        [0, 1, 0, 2, 0, 0, 6, 0, 0],
+        [0, 0, 0, 1, 0, 8, 0, 0, 0],
+        [0, 0, 4, 0, 0, 9, 0, 1, 0],
+    ];
+
+    let solution: Puzzle = [
+        [0, 2, 0, 4, 0, 0, 3, 0, 0],
+        [0, 0, 0, 8, 3, 7, 0, 0, 0],
+        [0, 0, 3, 0, 0, 2, 0, 5, 0],
+        [6, 4, 0, 0, 0, 0, 0, 3, 7],
+        [0, 0, 7, 0, 0, 0, 9, 0, 0],
+        [2, 5, 9, 0, 0, 0, 4, 8, 1],
+        [0, 1, 0, 2, 0, 0, 6, 0, 0],
+        [0, 0, 2, 1, 0, 8, 0, 0, 0],
+        [0, 0, 4, 0, 0, 9, 0, 1, 0],
+    ];
+
+    test_solve(&puzzle, &solution);
+}
+
+#[test]
+fn test_hard_puzzle() {
+    let puzzle: Puzzle = [
+        [3, 1, 0, 0, 0, 0, 2, 0, 0],
+        [0, 0, 0, 0, 0, 0, 1, 0, 9],
+        [0, 0, 8, 0, 6, 2, 0, 0, 3],
+        [0, 8, 0, 4, 7, 0, 0, 0, 0],
+        [0, 0, 7, 0, 0, 0, 6, 0, 0],
+        [0, 0, 0, 0, 8, 1, 0, 9, 0],
+        [7, 0, 0, 8, 3, 0, 9, 0, 0],
+        [8, 0, 5, 0, 0, 0, 0, 0, 0],
+        [0, 0, 6, 0, 0, 0, 0, 4, 7],
+    ];
+
+    //TODO: solve
+    let solution: Puzzle = [
+        [3, 1, 0, 0, 0, 0, 2, 0, 0],
+        [0, 0, 0, 0, 0, 0, 1, 0, 9],
+        [0, 0, 8, 1, 6, 2, 4, 0, 3],
+        [0, 8, 0, 4, 7, 0, 5, 0, 0],
+        [0, 0, 7, 0, 0, 0, 6, 0, 0],
+        [0, 0, 0, 0, 8, 1, 7, 9, 0],
+        [7, 0, 0, 8, 3, 0, 9, 0, 0],
+        [8, 0, 5, 0, 0, 0, 3, 0, 0],
+        [0, 3, 6, 0, 0, 0, 8, 4, 7],
+    ];
+
+    // let solution: Puzzle = [
+    //     [3, 1, 4, 7, 5, 9, 2, 8, 6],
+    //     [6, 7, 2, 3, 4, 8, 1, 5, 9],
+    //     [5, 9, 8, 1, 6, 2, 4, 7, 3],
+    //     [1, 8, 9, 4, 7, 6, 5, 2, 3],
+    //     [4, 5, 7, 9, 2, 3, 6, 1, 8],
+    //     [2, 6, 3, 5, 8, 1, 7, 9, 4],
+    //     [7, 2, 1, 8, 3, 4, 9, 6, 5],
+    //     [8, 4, 5, 6, 9, 7, 3, 2, 1],
+    //     [9, 3, 6, 2, 1, 5, 8, 4, 7],
+    // ];
+
+    test_solve(&puzzle, &solution);
 }

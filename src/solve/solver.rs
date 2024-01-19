@@ -119,7 +119,7 @@ impl Solver {
 
     pub fn solve(&mut self) {
         self.fill_notes();
-        while self.set_obvious_ones() || self.set_hiden_ones() {}
+        while self.set_obvious_ones() || self.set_hiden_ones() || self.set_obvious_pairs() {}
     }
 
     fn set_obvious_ones(&mut self) -> bool {
@@ -183,6 +183,48 @@ impl Solver {
             return true;
         }
         false
+    } // TODO: set_hiden_in_square
+
+    fn set_obvious_pairs(&mut self) -> bool {
+        let mut any_progress = false;
+        for row in 0..GRID_SIZE {
+            for col in 0..GRID_SIZE {
+                if self.notes[row][col].count_ones() == 2 {
+                    let pair_note = self.notes[row][col];
+                    any_progress |= self.set_coresponding_note(row, col, pair_note);
+                }
+            }
+        }
+        any_progress
+    }
+
+    fn set_coresponding_note(&mut self, x: usize, y: usize, note: u16) -> bool {
+        let mut any_progress = false;
+        if x < GRID_SIZE - 1 {
+            for row in x + 1..GRID_SIZE {
+                if self.notes[row][y] == note {
+                    for row_to_clear in self.notes.iter_mut() {
+                        if row_to_clear[y] != note {
+                            row_to_clear[y] &= !note;
+                            any_progress = true;
+                        }
+                    }
+                }
+            }
+        }
+        if y != GRID_SIZE - 1 {
+            for col in y + 1..GRID_SIZE {
+                if self.notes[x][col] == note {
+                    for note_to_clear in self.notes[x].iter_mut() {
+                        if *note_to_clear != note {
+                            *note_to_clear &= !note;
+                            any_progress = true;
+                        }
+                    }
+                }
+            }
+        }
+        any_progress
     }
 
     fn set(&mut self, row: usize, col: usize, value: u8) {
