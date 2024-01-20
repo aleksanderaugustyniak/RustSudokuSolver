@@ -8,6 +8,7 @@ const MENU_WIDTH: i32 = 25;
 pub struct Menu {
     _menu_bar: menu::MenuBar,
     file_menu: menu::MenuButton,
+    solve_menu: menu::MenuButton,
     board: Rc<RefCell<PlayBoard>>,
 }
 
@@ -16,6 +17,7 @@ impl Menu {
         Menu {
             _menu_bar: menu::MenuBar::new(0, 0, window_width, MENU_WIDTH, ""),
             file_menu: menu::MenuButton::new(0, 0, 60, MENU_WIDTH, "Board"),
+            solve_menu: menu::MenuButton::new(60, 0, 60, MENU_WIDTH, "Solve"),
             board: Rc::clone(&play_board),
         }
     }
@@ -25,6 +27,8 @@ impl Menu {
         self.file_menu.add_choice("Read");
         self.file_menu.add_choice("Clear");
         self.set_file_callback();
+        self.solve_menu.add_choice("Solve");
+        self.set_solve_callback();
     }
 
     fn set_file_callback(&mut self) {
@@ -45,6 +49,20 @@ impl Menu {
                 }
                 2 => {
                     (*board_clone.borrow_mut()).clear();
+                }
+                _ => {}
+            }
+        });
+    }
+
+    fn set_solve_callback(&mut self) {
+        let solve_menu_clone = self.solve_menu.clone();
+        let board_clone = Rc::clone(&self.board);
+
+        self.solve_menu.set_callback(move |_| {
+            match solve_menu_clone.value() {
+                0 => {
+                    board_clone.borrow_mut().solve_puzzle();
                 }
                 _ => {}
             }

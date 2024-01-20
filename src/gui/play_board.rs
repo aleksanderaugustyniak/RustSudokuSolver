@@ -1,9 +1,13 @@
 use fltk::{ prelude::*, button::*, group::*, enums::* };
 use std::cell::RefCell;
 use std::rc::Rc;
+use crate::common::grid_size::GRID_SIZE;
 use crate::gui::board::*;
 use crate::gui::colors::*;
 use crate::gui::save_handler::*;
+use crate::solve::puzzle::*;
+// use crate::gui::adapter::*;
+use crate::solve::solver::Solver;
 
 const MENU_WIDTH: i32 = 25;
 const BUTTON_SIZE: i32 = 50;
@@ -100,6 +104,20 @@ impl PlayBoard {
 
     pub fn from_json(&self) -> Result<(), Box<dyn std::error::Error>> {
         from_json("boards/board.json", &mut *self.play_grid.borrow_mut())
+    }
+
+    pub fn solve_puzzle(&mut self) {
+        let mut solver = Solver::new(crate::gui::adapter::read_puzzle(&self.play_grid.borrow()));
+        solver.solve();
+        self.display_puzzle(&solver.get_solution());
+    }
+
+    fn display_puzzle(&mut self, solution: &Puzzle) {
+        for (row, sol_row) in solution.iter().enumerate() {
+            for (col, cell) in sol_row.iter().enumerate() {
+                self.play_grid.borrow_mut()[row][col].set_label(&cell.to_string());
+            }
+        }
     }
 
     pub fn highlight(&mut self, label: &str) {

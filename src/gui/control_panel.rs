@@ -1,7 +1,7 @@
 use fltk::{ prelude::*, button::* };
 use std::cell::RefCell;
 use std::rc::Rc;
-use crate::gui::board::GRID_SIZE;
+use crate::common::grid_size::*;
 use crate::gui::colors::*;
 use crate::gui::play_board::PlayBoard;
 

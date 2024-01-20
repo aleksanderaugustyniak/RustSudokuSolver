@@ -1,5 +1,6 @@
 use crate::solve::puzzle::*;
 use crate::solve::notes_manager::NotesManager;
+use crate::common::grid_size::GRID_SIZE;
 
 pub struct Solver {
     puzzle: Puzzle,
