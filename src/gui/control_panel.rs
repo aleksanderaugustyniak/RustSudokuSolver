@@ -58,7 +58,7 @@ impl ControlPanel {
         let board_clone = Rc::clone(&self.board);
 
         self.eraser.borrow_mut().set_callback(move |button: &mut Button| {
-            board_clone.borrow_mut().set_number(&button.label().to_string());
+            board_clone.borrow_mut().set_number(&button.label());
             for but in (*panel_clone.borrow_mut()).iter_mut() {
                 but.set_color(LIGHT_BUTTON_COLOR);
                 but.redraw();
@@ -75,7 +75,7 @@ impl ControlPanel {
             let eraser_clone = Rc::clone(&self.eraser);
 
             control_button.set_callback(move |button: &mut Button| {
-                board_clone.borrow_mut().set_number(&button.label().to_string());
+                board_clone.borrow_mut().set_number(&button.label());
                 for but in (*panel_clone.borrow_mut()).iter_mut() {
                     but.set_color(LIGHT_BUTTON_COLOR);
                     but.redraw();

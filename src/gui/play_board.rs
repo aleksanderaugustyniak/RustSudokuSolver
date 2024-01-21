@@ -101,8 +101,8 @@ impl PlayBoard {
         to_json("boards/board.json", &self.play_grid.borrow())
     }
 
-    pub fn from_json(&self) -> Result<(), Box<dyn std::error::Error>> {
-        from_json("boards/board.json", &mut *self.play_grid.borrow_mut())
+    pub fn read_from_file(&self) -> Result<(), Box<dyn std::error::Error>> {
+        from_json("boards/board.json", &mut self.play_grid.borrow_mut())
     }
 
     pub fn solve_puzzle(&mut self) {

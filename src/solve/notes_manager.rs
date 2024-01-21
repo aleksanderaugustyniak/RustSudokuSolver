@@ -3,7 +3,8 @@ use crate::common::puzzle::*;
 use crate::solve::notes::Notes;
 
 type HelpNotes = [u16; GRID_SIZE];
-const FILLED_BITSET: u16 = 0b111_111_111;
+#[allow(clippy::unusual_byte_groupings)]
+const FILLED_BITSET: u16 = 0b111_111_111; // Group by 3 fits better to the project purpose
 
 pub struct NotesManager {
     puzzle: Puzzle,

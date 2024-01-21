@@ -32,10 +32,10 @@ impl Solver {
     fn set_obvious_ones(&mut self) -> bool {
         let mut any_cell_filled: bool = false;
         let notes = self.notes_manager.get();
-        for row in 0..GRID_SIZE {
-            for col in 0..GRID_SIZE {
-                if notes[row][col].count_ones() == 1 {
-                    let value = (notes[row][col].trailing_zeros() + 1) as u8;
+        for (row, notes_row) in notes.iter().enumerate() {
+            for (col, note) in notes_row.iter().enumerate() {
+                if note.count_ones() == 1 {
+                    let value = (note.trailing_zeros() + 1) as u8;
                     self.set(row, col, value);
                     any_cell_filled = true;
                 }
@@ -59,11 +59,9 @@ impl Solver {
         match self.notes_manager.get_hidden_in_row(row, value) {
             Some(col) => {
                 self.set(row, col, value as u8);
-                return true;
+                true
             }
-            None => {
-                return false;
-            }
+            None => { false }
         }
     }
 
@@ -71,11 +69,9 @@ impl Solver {
         match self.notes_manager.get_hidden_in_col(col, value) {
             Some(row) => {
                 self.set(row, col, value as u8);
-                return true;
+                true
             }
-            None => {
-                return false;
-            }
+            None => { false }
         }
     } // TODO: set_hiden_in_square
 

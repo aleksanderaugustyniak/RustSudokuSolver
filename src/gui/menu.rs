@@ -43,7 +43,7 @@ impl Menu {
                     }
                 }
                 1 => {
-                    if let Err(err) = board_clone.borrow_mut().from_json() {
+                    if let Err(err) = board_clone.borrow_mut().read_from_file() {
                         eprintln!("Error updating from JSON file: {}", err);
                     }
                 }
@@ -60,6 +60,7 @@ impl Menu {
         let board_clone = Rc::clone(&self.board);
 
         self.solve_menu.set_callback(move |_| {
+            #[allow(clippy::single_match)] // Extention ongoing
             match solve_menu_clone.value() {
                 0 => {
                     board_clone.borrow_mut().solve_puzzle();
