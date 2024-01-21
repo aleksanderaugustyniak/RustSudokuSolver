@@ -1,6 +1,6 @@
-use crate::solve::puzzle::*;
+use crate::common::grid_size::GRID_SIZE;
+use crate::common::puzzle::*;
 use crate::solve::notes::Notes;
-use crate::common::grid_size::*;
 
 type HelpNotes = [u16; GRID_SIZE];
 const FILLED_BITSET: u16 = 0b111_111_111;

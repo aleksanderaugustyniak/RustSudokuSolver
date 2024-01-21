@@ -2,11 +2,10 @@ use fltk::{ prelude::*, button::*, group::*, enums::* };
 use std::cell::RefCell;
 use std::rc::Rc;
 use crate::common::grid_size::GRID_SIZE;
+use crate::common::puzzle::*;
 use crate::gui::board::*;
 use crate::gui::colors::*;
 use crate::gui::save_handler::*;
-use crate::solve::puzzle::*;
-// use crate::gui::adapter::*;
 use crate::solve::solver::Solver;
 
 const MENU_WIDTH: i32 = 25;
