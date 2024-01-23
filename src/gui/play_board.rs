@@ -51,9 +51,12 @@ impl PlayBoard {
     }
 
     fn display_button(&self, row: usize, col: usize) {
+        let square_spacing = 5;
+        let square_x = (col as i32) / 3;
+        let square_y = (row as i32) / 3;
         self.play_grid.borrow_mut()[row][col] = Button::new(
-            BOARD_OFFSET_LEFT + (col as i32) * BUTTON_SIZE,
-            BOARD_OFFSET_TOP + (row as i32) * BUTTON_SIZE,
+            BOARD_OFFSET_LEFT + (col as i32) * BUTTON_SIZE + square_spacing * square_x,
+            BOARD_OFFSET_TOP + (row as i32) * BUTTON_SIZE + square_spacing * square_y,
             BUTTON_SIZE,
             BUTTON_SIZE,
             ""
