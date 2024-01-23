@@ -1,8 +1,8 @@
 use fltk::{ prelude::*, button::* };
+use fltk_theme::widget_themes;
 use std::cell::RefCell;
 use std::rc::Rc;
 use crate::common::grid_size::*;
-use crate::gui::colors::*;
 use crate::gui::play_board::PlayBoard;
 
 const MENU_WIDTH: i32 = 25;
@@ -37,7 +37,8 @@ impl ControlPanel {
             );
             button.set_label(&format!("{}", number + 1));
             button.set_label_size(22);
-            button.set_color(LIGHT_BUTTON_COLOR);
+            button.set_label_type(fltk::enums::LabelType::Embossed);
+            button.set_frame(widget_themes::OS_BUTTON_UP_BOX);
         }
 
         self.display_eraser();
@@ -60,11 +61,11 @@ impl ControlPanel {
         self.eraser.borrow_mut().set_callback(move |button: &mut Button| {
             board_clone.borrow_mut().set_number(&button.label());
             for but in (*panel_clone.borrow_mut()).iter_mut() {
-                but.set_color(LIGHT_BUTTON_COLOR);
+                but.set_frame(widget_themes::OS_BUTTON_UP_BOX);
                 but.redraw();
             }
-            board_clone.borrow_mut().clear_color();
-            button.set_color(HIGHLIGHTED_BUTTON_COLOR);
+            board_clone.borrow_mut().clear_highlight();
+            button.set_frame(widget_themes::OS_DEFAULT_BUTTON_UP_BOX);
         });
     }
 
@@ -77,12 +78,14 @@ impl ControlPanel {
             control_button.set_callback(move |button: &mut Button| {
                 board_clone.borrow_mut().set_number(&button.label());
                 for but in (*panel_clone.borrow_mut()).iter_mut() {
-                    but.set_color(LIGHT_BUTTON_COLOR);
+                    but.set_frame(widget_themes::OS_BUTTON_UP_BOX);
+                }
+                button.set_frame(widget_themes::OS_DEFAULT_BUTTON_UP_BOX);
+                board_clone.borrow_mut().highlight(&button.label());
+                for but in (*panel_clone.borrow_mut()).iter_mut() {
                     but.redraw();
                 }
-                board_clone.borrow_mut().highlight(&button.label());
-                button.set_color(HIGHLIGHTED_BUTTON_COLOR);
-                eraser_clone.borrow_mut().set_color(LIGHT_BUTTON_COLOR);
+                eraser_clone.borrow_mut().set_frame(widget_themes::OS_BUTTON_UP_BOX);
                 eraser_clone.borrow_mut().redraw();
             });
         }

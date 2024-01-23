@@ -1,10 +1,10 @@
-use fltk::{ prelude::*, button::*, group::*, enums::* };
+use fltk::{ prelude::*, button::*, group::* };
+use fltk_theme::widget_themes;
 use std::cell::RefCell;
 use std::rc::Rc;
 use crate::common::grid_size::GRID_SIZE;
 use crate::common::puzzle::*;
 use crate::gui::board::*;
-use crate::gui::colors::*;
 use crate::gui::save_handler::*;
 use crate::solve::solver::Solver;
 
@@ -42,7 +42,7 @@ impl PlayBoard {
                 self.display_button(row, col);
             }
         }
-        self.clear_color();
+        self.clear_highlight();
         grid.end();
     }
 
@@ -69,14 +69,14 @@ impl PlayBoard {
         let button_label = Rc::clone(&self.current_number);
         self.play_grid.borrow_mut()[row][col].set_callback(move |button: &mut Button| {
             button.set_label(&format!("{}", button_label.borrow()));
-            button.set_color(HIGHLIGHTED_BUTTON_COLOR);
+            button.set_frame(widget_themes::OS_DEFAULT_BUTTON_UP_BOX);
         });
     }
 
-    pub fn clear_color(&mut self) {
-        for (row, play_row) in self.play_grid.borrow_mut().iter_mut().enumerate() {
-            for (col, button) in play_row.iter_mut().enumerate() {
-                button.set_color(Self::get_square_color(row, col));
+    pub fn clear_highlight(&mut self) {
+        for play_row in self.play_grid.borrow_mut().iter_mut() {
+            for button in play_row.iter_mut() {
+                button.set_frame(widget_themes::OS_BUTTON_UP_BOX);
                 button.redraw();
             }
         }
@@ -88,16 +88,7 @@ impl PlayBoard {
                 button.set_label("");
             }
         }
-        self.clear_color();
-    }
-
-    fn get_square_color(row: usize, col: usize) -> Color {
-        let square_id = row / 3 + col / 3;
-        if square_id % 2 == 1 {
-            DARK_BUTTON_COLOR
-        } else {
-            LIGHT_BUTTON_COLOR
-        }
+        self.clear_highlight();
     }
 
     pub fn to_json(&self) -> Result<(), Box<dyn std::error::Error>> {
@@ -123,14 +114,13 @@ impl PlayBoard {
     }
 
     pub fn highlight(&mut self, label: &str) {
-        for (row, play_row) in self.play_grid.borrow_mut().iter_mut().enumerate() {
-            for (col, button) in play_row.iter_mut().enumerate() {
-                let color = if button.label() == label {
-                    HIGHLIGHTED_BUTTON_COLOR
+        for play_row in self.play_grid.borrow_mut().iter_mut() {
+            for button in play_row.iter_mut() {
+                if button.label() == label {
+                    button.set_frame(widget_themes::OS_DEFAULT_BUTTON_UP_BOX);
                 } else {
-                    Self::get_square_color(row, col)
-                };
-                button.set_color(color);
+                    button.set_frame(widget_themes::OS_BUTTON_UP_BOX);
+                }
                 button.redraw();
             }
         }

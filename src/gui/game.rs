@@ -1,4 +1,5 @@
 use fltk::{ app, prelude::*, enums::*, window };
+use fltk_theme::*;
 use std::cell::RefCell;
 use std::rc::Rc;
 use crate::gui::menu::Menu;
@@ -18,6 +19,8 @@ pub struct Game {
 impl Game {
     pub fn new() -> Self {
         let window = window::Window::new(100, 80, WINDOW_WIDTH, WINDOW_WIDTH, "Sudoku");
+        let widget_theme = WidgetTheme::new(ThemeType::AquaClassic);
+        widget_theme.apply();
         let play_board = Rc::new(RefCell::new(PlayBoard::new()));
         let control_panel = Rc::new(RefCell::new(ControlPanel::new(Rc::clone(&play_board))));
         let menu = Menu::new(Rc::clone(&play_board), WINDOW_WIDTH);
