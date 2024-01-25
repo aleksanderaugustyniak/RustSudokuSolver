@@ -114,12 +114,12 @@ impl NotesManager {
         }
         Self::unset_note(&mut self.col_notes[col], value);
 
-        let square_index = Self::get_square_index(row, col);
-        for x in 3 * (square_index / 3)..3 * (square_index / 3 + 1) {
-            for y in 3 * (square_index % 3)..3 * ((square_index % 3) + 1) {
+        for x in Self::square_iter(row) {
+            for y in Self::square_iter(col) {
                 Self::unset_note(&mut self.notes[x][y], value);
             }
         }
+        let square_index = Self::get_square_index(row, col);
         Self::unset_note(&mut self.square_notes[square_index], value);
 
         self.notes[row][col] = 0;
@@ -217,6 +217,11 @@ impl NotesManager {
         } else {
             None
         }
+    }
+
+    fn square_iter(position: usize) -> [usize; 3] {
+        let start = position - (position % 3);
+        [start, start + 1, start + 2]
     }
 }
 
