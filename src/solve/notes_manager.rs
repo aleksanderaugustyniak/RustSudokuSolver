@@ -219,6 +219,26 @@ impl NotesManager {
         }
     }
 
+    pub fn get_hidden_in_square(&mut self, index: usize, value: usize) -> Option<(usize, usize)> {
+        let mut count_values = 0;
+        let mut row_found = 0;
+        let mut col_found = 0;
+        for row in Self::square_iter(index % 3) {
+            for col in Self::square_iter(index / 3) {
+                if Self::is_set(&self.notes[row][col], value) {
+                    count_values += 1;
+                    row_found = row;
+                    col_found = col;
+                }
+            }
+        }
+        if count_values == 1 {
+            Some((row_found, col_found))
+        } else {
+            None
+        }
+    }
+
     fn square_iter(position: usize) -> [usize; 3] {
         let start = position - (position % 3);
         [start, start + 1, start + 2]

@@ -50,6 +50,7 @@ impl Solver {
             for value in 1..=GRID_SIZE {
                 any_cell_filled |= self.set_hidden_in_row(index, value);
                 any_cell_filled |= self.set_hidden_in_col(index, value);
+                any_cell_filled |= self.set_hidden_in_squares(index, value);
             }
         }
         any_cell_filled
@@ -73,7 +74,17 @@ impl Solver {
             }
             None => { false }
         }
-    } // TODO: set_hiden_in_square
+    }
+
+    fn set_hidden_in_squares(&mut self, index: usize, value: usize) -> bool {
+        match self.notes_manager.get_hidden_in_square(index, value) {
+            Some((row, col)) => {
+                self.set(row, col, value as u8);
+                true
+            }
+            None => { false }
+        }
+    }
 
     fn set(&mut self, row: usize, col: usize, value: u8) {
         self.puzzle[row][col] = value;
