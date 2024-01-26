@@ -25,7 +25,8 @@ impl Solver {
         while
             self.set_obvious_ones() ||
             self.set_hiden_ones() ||
-            self.notes_manager.set_obvious_pairs()
+            self.notes_manager.set_obvious_pairs() ||
+            self.notes_manager.use_square_methods()
         {}
     }
 

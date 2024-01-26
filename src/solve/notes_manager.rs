@@ -243,6 +243,10 @@ impl NotesManager {
         let start = position - (position % 3);
         [start, start + 1, start + 2]
     }
+
+    pub fn use_square_methods(&mut self) -> bool {
+        crate::solve::pointing_sets::Handler::new(&mut self.notes).handle()
+    }
 }
 
 #[cfg(test)]
