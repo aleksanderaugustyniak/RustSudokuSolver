@@ -1,5 +1,6 @@
 use crate::common::grid_size::GRID_SIZE;
 use crate::common::puzzle::*;
+use crate::solve::coordinates::*;
 use crate::solve::notes::Notes;
 
 type HelpNotes = [u16; GRID_SIZE];
@@ -174,6 +175,17 @@ impl NotesManager {
                             *note_to_clear &= !note;
                             any_progress = true;
                         }
+                    }
+                }
+            }
+        }
+        let square_coordinates = get_square_coordinates((x / 3, y / 3));
+        for (row, col) in square_coordinates.iter() {
+            if self.notes[*row][*col] == note && (*row, *col) != (x, y) {
+                for (row_clear, col_clear) in square_coordinates.iter() {
+                    if self.notes[*row_clear][*col_clear] != note {
+                        self.notes[*row_clear][*col_clear] &= !note;
+                        any_progress = true;
                     }
                 }
             }
