@@ -115,10 +115,8 @@ impl NotesManager {
         }
         Self::unset_note(&mut self.col_notes[col], value);
 
-        for x in Self::square_iter(row) {
-            for y in Self::square_iter(col) {
-                Self::unset_note(&mut self.notes[x][y], value);
-            }
+        for (x, y) in get_square_coordinates((row / 3, col / 3)) {
+            Self::unset_note(&mut self.notes[x][y], value);
         }
         let square_index = Self::get_square_index(row, col);
         Self::unset_note(&mut self.square_notes[square_index], value);
@@ -191,11 +189,6 @@ impl NotesManager {
         } else {
             None
         }
-    }
-
-    fn square_iter(position: usize) -> [usize; 3] {
-        let start = position - (position % 3);
-        [start, start + 1, start + 2]
     }
 
     pub fn use_square_methods(&mut self) -> bool {
