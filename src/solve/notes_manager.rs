@@ -175,55 +175,15 @@ impl NotesManager {
         any_progress
     }
 
-    pub fn get_hidden_in_row(&mut self, row: usize, value: usize) -> Option<usize> {
-        if !Self::is_set(&self.row_notes[row], value) {
-            return None;
-        }
-        let mut count_values = 0;
-        let mut col_found = 0;
-        for (col, cell_note) in self.notes[row].iter().enumerate() {
-            if Self::is_set(cell_note, value) {
-                count_values += 1;
-                col_found = col;
-            }
-        }
-        if count_values == 1 {
-            Some(col_found)
-        } else {
-            None
-        }
-    }
-
-    pub fn get_hidden_in_col(&mut self, col: usize, value: usize) -> Option<usize> {
-        if !Self::is_set(&self.col_notes[col], value) {
-            return None;
-        }
-        let mut count_values = 0;
-        let mut row_found = 0;
-        for (row, row_cells) in self.notes.iter().enumerate() {
-            if Self::is_set(&row_cells[col], value) {
-                count_values += 1;
-                row_found = row;
-            }
-        }
-        if count_values == 1 {
-            Some(row_found)
-        } else {
-            None
-        }
-    }
-
-    pub fn get_hidden_in_square(&mut self, index: usize, value: usize) -> Option<Point> {
+    pub fn get_hidden(&mut self, coordinates: &Coordinates, value: usize) -> Option<Point> {
         let mut count_values = 0;
         let mut row_found = 0;
         let mut col_found = 0;
-        for row in Self::square_iter(index % 3) {
-            for col in Self::square_iter(index / 3) {
-                if Self::is_set(&self.notes[row][col], value) {
-                    count_values += 1;
-                    row_found = row;
-                    col_found = col;
-                }
+        for (row, col) in coordinates.iter() {
+            if Self::is_set(&self.notes[*row][*col], value) {
+                count_values += 1;
+                row_found = *row;
+                col_found = *col;
             }
         }
         if count_values == 1 {

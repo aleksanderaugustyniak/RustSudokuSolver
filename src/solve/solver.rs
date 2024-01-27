@@ -1,5 +1,6 @@
 use crate::common::grid_size::GRID_SIZE;
 use crate::common::puzzle::*;
+use crate::solve::coordinates::*;
 use crate::solve::notes_manager::NotesManager;
 
 pub struct Solver {
@@ -48,37 +49,20 @@ impl Solver {
     fn set_hiden_ones(&mut self) -> bool {
         let mut any_cell_filled: bool = false;
         for index in 0..GRID_SIZE {
+            let row_coordinates = get_row_coordinates(index);
+            let col_coordinates = get_col_coordinates(index);
+            let square_coordinates = get_square_coordinates((index % 3, index / 3));
             for value in 1..=GRID_SIZE {
-                any_cell_filled |= self.set_hidden_in_row(index, value);
-                any_cell_filled |= self.set_hidden_in_col(index, value);
-                any_cell_filled |= self.set_hidden_in_squares(index, value);
+                any_cell_filled |= self.set_hidden(&row_coordinates, value);
+                any_cell_filled |= self.set_hidden(&col_coordinates, value);
+                any_cell_filled |= self.set_hidden(&square_coordinates, value);
             }
         }
         any_cell_filled
     }
 
-    fn set_hidden_in_row(&mut self, row: usize, value: usize) -> bool {
-        match self.notes_manager.get_hidden_in_row(row, value) {
-            Some(col) => {
-                self.set(row, col, value as u8);
-                true
-            }
-            None => { false }
-        }
-    }
-
-    fn set_hidden_in_col(&mut self, col: usize, value: usize) -> bool {
-        match self.notes_manager.get_hidden_in_col(col, value) {
-            Some(row) => {
-                self.set(row, col, value as u8);
-                true
-            }
-            None => { false }
-        }
-    }
-
-    fn set_hidden_in_squares(&mut self, index: usize, value: usize) -> bool {
-        match self.notes_manager.get_hidden_in_square(index, value) {
+    fn set_hidden(&mut self, coordinates: &Coordinates, value: usize) -> bool {
+        match self.notes_manager.get_hidden(coordinates, value) {
             Some((row, col)) => {
                 self.set(row, col, value as u8);
                 true
