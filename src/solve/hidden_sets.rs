@@ -1,7 +1,6 @@
 use crate::common::grid_size::GRID_SIZE;
 use crate::solve::notes::Notes;
 use crate::solve::coordinates::*;
-type Counters = [u8; GRID_SIZE];
 
 pub fn use_hidden_sets(notes: &mut Notes) -> bool {
     let mut result = false;
@@ -14,15 +13,41 @@ pub fn use_hidden_sets(notes: &mut Notes) -> bool {
 }
 
 fn check_hidden_set(notes: &mut Notes, cells: &Coordinates) -> bool {
-    let counters = crate::solve::count_notes::count(notes, cells);
-    for (index, count) in counters.iter().enumerate() {
-        // TODO: consider placing here setting hidden ones from solver
+    let mut result = false;
+    let values_map = crate::solve::count_notes::count(notes, cells);
+    for (first, map) in values_map.iter().enumerate() {
+        if map.count_ones() == 2 {
+            //first is candidate
+            for second in first + 1..GRID_SIZE {
+                let candidate = (1 << second) | (1 << first);
+                if check_candidate(values_map[second], values_map[first], candidate) {
+                    // candidate found -> check candidate
+                    let (row_first, col_first) = cells[first];
+                    let (row_second, col_second) = cells[second];
 
+                    notes[row_first][col_first] = candidate;
+                    notes[row_second][col_second] = candidate;
+                    result = true;
+                }
+            }
+        }
     }
-    false
+    result
+}
+
+fn check_candidate(first: u16, second: u16, candidate: u16) -> bool {
+    (candidate & first) == candidate && (candidate & second) == candidate
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn test_check_candidate() {
+        let actual = check_candidate(0b000_000_011, 0b000_000_110, 0b000_000_011);
+        assert!(!actual);
+        let actual = check_candidate(0b100_010_011, 0b010_101_011, 0b000_000_011);
+        assert!(actual);
+    }
 }

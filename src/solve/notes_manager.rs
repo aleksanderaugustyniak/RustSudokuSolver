@@ -12,7 +12,7 @@ pub struct NotesManager {
     notes: Notes,
     row_notes: HelpNotes,
     col_notes: HelpNotes,
-    square_notes: HelpNotes,
+    square_notes: HelpNotes, //TODO: consider remowing those fields
 }
 
 impl NotesManager {
@@ -192,7 +192,8 @@ impl NotesManager {
     }
 
     pub fn use_square_methods(&mut self) -> bool {
-        crate::solve::pointing_sets::Handler::new(&mut self.notes).handle()
+        crate::solve::pointing_sets::Handler::new(&mut self.notes).handle() ||
+            crate::solve::hidden_sets::use_hidden_sets(&mut self.notes)
     }
 }
 

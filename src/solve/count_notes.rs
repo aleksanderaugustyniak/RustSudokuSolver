@@ -2,24 +2,29 @@ use crate::common::grid_size::GRID_SIZE;
 use crate::solve::notes::Notes;
 use crate::solve::coordinates::*;
 
-pub type Counters = [u8; GRID_SIZE];
+pub type Counters = [u16; GRID_SIZE]; //TODO: it's same as HelperNotes -> extract common type
 
 pub fn count(notes: &Notes, cells: &Coordinates) -> Counters {
     let mut counters: Counters = Default::default();
-    for (row, col) in cells.iter() {
+    for (index, (row, col)) in cells.iter().enumerate() {
         for value in 1..=GRID_SIZE {
             if is_set(notes[*row][*col], value) {
-                counters[value - 1] += 1;
+                // counters[value - 1] += 1;
+                set_note(&mut counters[value - 1], index as u8);
             }
         }
     }
     counters
 }
 
-// TODO: remove copied code
+// TODO: remove copied code -> extract Bitset class
 fn is_set(note: u16, position: usize) -> bool {
     let mask = 1 << (position - 1);
     (note & mask) != 0
+}
+
+fn set_note(note: &mut u16, bit: u8) {
+    *note |= 1 << bit;
 }
 
 #[cfg(test)]
@@ -64,7 +69,10 @@ mod tests {
 
         let coordinates = get_row_coordinates(2);
         let actual = count(&notes, &coordinates);
-        let expected = [2, 4, 3, 4, 1, 0, 2, 0, 0];
+        let expected = [
+            0b001_000_001, 0b100_101_001, 0b001_011_000, 0b101_110_000, 0b001_000_000, 0,
+            0b101_000_000, 0, 0,
+        ];
         assert_eq!(actual, expected);
     }
 }

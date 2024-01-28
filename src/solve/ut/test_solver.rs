@@ -137,7 +137,7 @@ fn test_medium_puzzle() {
     test_solve(&puzzle, &solution);
 }
 
-#[ignore]
+// #[ignore]
 #[test]
 fn test_hard_puzzle() {
     let puzzle: Puzzle = [
