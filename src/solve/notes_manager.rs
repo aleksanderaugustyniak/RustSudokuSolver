@@ -100,9 +100,35 @@ impl NotesManager {
             if self.notes[*row][*col].count_ones() == 2 {
                 result |= self.handle_coresponding_note(coordinates, (*row, *col));
             }
-            //TODO: check obvious triples
+        }
+        if result {
+            return true;
+        }
+        for (index, (row, col)) in coordinates.iter().enumerate() {
+            if self.notes[*row][*col].count_ones() <= 3 && self.notes[*row][*col] != 0 {
+                self.handle_triple(coordinates, index, self.notes[*row][*col]);
+            }
         }
         result
+    }
+
+    fn handle_triple(&mut self, coordinates: &Coordinates, index: usize, first_note: u16) {
+        if index >= GRID_SIZE - 2 {
+            return; // can't find triple on last or previous one
+        }
+        for second in index + 1..GRID_SIZE - 1 {
+            let (row, col) = coordinates[second];
+            let second_note = self.notes[row][col] | first_note;
+            if second_note.count_ones() <= 3 && self.notes[row][col] != 0 {
+                for third in second + 1..GRID_SIZE {
+                    let (row3, col3) = coordinates[third];
+                    let note = second_note | self.notes[row3][col3];
+                    if note.count_ones() <= 3 && self.notes[row3][col3] != 0 {
+                        self.clear_notes_obvious_set_based(coordinates, note);
+                    }
+                }
+            }
+        }
     }
 
     fn handle_coresponding_note(&mut self, coordinates: &Coordinates, (x, y): Point) -> bool {
@@ -110,22 +136,19 @@ impl NotesManager {
         let note = self.notes[x][y];
         for (row, col) in coordinates.iter() {
             if self.notes[*row][*col] == note && (*row, *col) != (x, y) {
-                any_progress |= self.clear_notes_obvious_pair_based(coordinates, note);
+                any_progress |= self.clear_notes_obvious_set_based(coordinates, note);
             }
         }
         any_progress
     }
 
-    fn clear_notes_obvious_pair_based(
-        &mut self,
-        coordinates: &Coordinates,
-        pair_note: u16
-    ) -> bool {
+    fn clear_notes_obvious_set_based(&mut self, coordinates: &Coordinates, pair_note: u16) -> bool {
         let mut any_progress = false;
         for (row, col) in coordinates.iter() {
-            if self.notes[*row][*col] != pair_note && (self.notes[*row][*col] & pair_note) != 0 {
+            let note = &mut self.notes[*row][*col];
+            if (*note & pair_note) != *note && (*note & pair_note) != 0 {
                 any_progress = true;
-                self.notes[*row][*col] &= !pair_note;
+                *note &= !pair_note;
             }
         }
         any_progress
