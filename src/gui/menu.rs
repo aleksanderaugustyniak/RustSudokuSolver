@@ -28,6 +28,7 @@ impl Menu {
         self.file_menu.add_choice("Clear");
         self.set_file_callback();
         self.solve_menu.add_choice("Solve");
+        self.solve_menu.add_choice("Show notes");
         self.set_solve_callback();
     }
 
@@ -60,10 +61,12 @@ impl Menu {
         let board_clone = Rc::clone(&self.board);
 
         self.solve_menu.set_callback(move |_| {
-            #[allow(clippy::single_match)] // Extention ongoing
             match solve_menu_clone.value() {
                 0 => {
                     board_clone.borrow_mut().solve_puzzle();
+                }
+                1 => {
+                    board_clone.borrow_mut().show_notes();
                 }
                 _ => {}
             }

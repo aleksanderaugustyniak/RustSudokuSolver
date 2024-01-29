@@ -1,5 +1,5 @@
 pub mod solver;
-mod notes_manager;
+pub mod notes_manager;
 mod notes;
 mod pointing_sets;
 mod hidden_sets;

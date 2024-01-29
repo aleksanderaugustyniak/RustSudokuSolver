@@ -61,7 +61,10 @@ impl PlayBoard {
             BUTTON_SIZE,
             ""
         );
-
+        self.play_grid.borrow_mut()[row][col].set_label_size(16);
+        self.play_grid
+            .borrow_mut()
+            [row][col].set_label_color(fltk::enums::Color::from_rgb(0, 0, 0));
         self.set_callback(row, col);
     }
 
@@ -69,6 +72,8 @@ impl PlayBoard {
         let button_label = Rc::clone(&self.current_number);
         self.play_grid.borrow_mut()[row][col].set_callback(move |button: &mut Button| {
             button.set_label(&format!("{}", button_label.borrow()));
+            button.set_label_size(16);
+            button.set_label_color(fltk::enums::Color::from_rgb(0, 0, 0));
             button.set_frame(widget_themes::OS_DEFAULT_BUTTON_UP_BOX);
         });
     }
@@ -103,6 +108,40 @@ impl PlayBoard {
         let mut solver = Solver::new(crate::gui::adapter::read_puzzle(&self.play_grid.borrow()));
         solver.solve();
         self.display_puzzle(&solver.get_solution());
+    }
+
+    pub fn show_notes(&mut self) {
+        let mut notes_manager = crate::solve::notes_manager::NotesManager::new(
+            crate::gui::adapter::read_puzzle(&self.play_grid.borrow())
+        );
+        notes_manager.fill();
+        let notes = notes_manager.get();
+        for (row, x) in notes.iter().enumerate() {
+            for (col, note) in x.iter().enumerate() {
+                if notes[row][col] != 0 {
+                    let button = &mut self.play_grid.borrow_mut()[row][col];
+                    button.set_label(&Self::note_to_string(*note).to_string());
+                    button.set_label_size(10);
+                    button.set_label_color(fltk::enums::Color::from_rgb(80, 80, 240));
+                    button.redraw();
+                }
+            }
+        }
+    }
+
+    fn note_to_string(note: u16) -> String {
+        let mut output = String::new();
+        for i in 0..GRID_SIZE {
+            if (note & (1 << i)) != 0 {
+                output.push_str(&(i + 1).to_string());
+            } else {
+                output.push(' ');
+            }
+            if i == 2 || i == 5 {
+                output.push('\n');
+            }
+        }
+        output
     }
 
     fn display_puzzle(&mut self, solution: &Puzzle) {
