@@ -15,28 +15,32 @@ pub fn use_hidden_sets(notes: &mut Notes) -> bool {
 fn check_hidden_set(notes: &mut Notes, cells: &Coordinates) -> bool {
     let mut result = false;
     let values_map = crate::solve::map_notes::map(notes, cells);
-    for (first, map) in values_map.iter().enumerate() {
-        if map.count_ones() == 2 {
-            //first is candidate
+    for first in 0..GRID_SIZE - 1 {
+        if values_map[first].count_ones() == 2 {
             for second in first + 1..GRID_SIZE {
                 if values_map[second] == values_map[first] {
-                    // candidate found -> check candidate
-                    let candidate = (1 << second) | (1 << first);
-                    let (row_first, col_first) = cells[first];
-                    let (row_second, col_second) = cells[second];
-
-                    notes[row_first][col_first] = candidate;
-                    notes[row_second][col_second] = candidate;
-                    result = true;
+                    result |= clear_hidden_set(notes, cells, candidate(first, second));
                 }
             }
+        }
+        // TODO: check hidden triples
+    }
+    result
+}
+
+fn clear_hidden_set(notes: &mut Notes, cells: &Coordinates, candidate: u16) -> bool {
+    let mut result = false;
+    for (row, col) in cells.iter() {
+        if (notes[*row][*col] & candidate) != 0 && (notes[*row][*col] | candidate) != candidate {
+            notes[*row][*col] &= candidate;
+            result |= true;
         }
     }
     result
 }
 
-fn check_candidate(first: u16, second: u16, candidate: u16) -> bool {
-    (candidate & first) == candidate && (candidate & second) == candidate
+fn candidate(first: usize, second: usize) -> u16 {
+    (1 << second) | (1 << first)
 }
 
 #[cfg(test)]
@@ -45,9 +49,7 @@ mod tests {
 
     #[test]
     fn test_check_candidate() {
-        let actual = check_candidate(0b000_000_011, 0b000_000_110, 0b000_000_011);
-        assert!(!actual);
-        let actual = check_candidate(0b100_010_011, 0b010_101_011, 0b000_000_011);
-        assert!(actual);
+        assert_eq!(candidate(0, 1), 0b11);
+        assert_eq!(candidate(8, 6), 0b101_000_000);
     }
 }

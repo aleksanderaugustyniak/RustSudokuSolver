@@ -100,6 +100,7 @@ impl NotesManager {
             if self.notes[*row][*col].count_ones() == 2 {
                 result |= self.handle_coresponding_note(coordinates, (*row, *col));
             }
+            //TODO: check obvious triples
         }
         result
     }
@@ -149,9 +150,8 @@ impl NotesManager {
     }
 
     pub fn use_square_methods(&mut self) -> bool {
-        crate::solve::pointing_sets::Handler::new(&mut self.notes).handle()
-        //  ||
-        //     crate::solve::hidden_sets::use_hidden_sets(&mut self.notes)
+        crate::solve::pointing_sets::Handler::new(&mut self.notes).handle() ||
+            crate::solve::hidden_sets::use_hidden_sets(&mut self.notes)
     }
 }
 

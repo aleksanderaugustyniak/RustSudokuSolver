@@ -34,7 +34,6 @@ impl Solver {
         {
             iterations_counter += 1;
         }
-        // print!("Iterations: {}", iterations_counter);
     }
 
     fn set_obvious_ones(&mut self) -> bool {
@@ -79,7 +78,7 @@ impl Solver {
 
     fn set(&mut self, row: usize, col: usize, value: u8) {
         if self.puzzle[row][col] != 0 {
-            panic!();
+            panic!("Value already set! row {}, col {}", row, col);
         }
         self.puzzle[row][col] = value;
         self.notes_manager.adjust(row, col, value);
