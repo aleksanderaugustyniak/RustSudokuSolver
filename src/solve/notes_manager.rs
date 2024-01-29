@@ -86,13 +86,11 @@ impl NotesManager {
     }
 
     fn set_square_notes(&mut self, x: usize, y: usize) {
-        for row in 3 * x..3 * (x + 1) {
-            for col in 3 * y..3 * (y + 1) {
-                if self.puzzle[row][col] == 0 {
-                    continue;
-                }
-                Self::unset_note(&mut self.square_notes[3 * x + y], self.puzzle[row][col]);
+        for (row, col) in get_square_coordinates((x, y)).iter() {
+            if self.puzzle[*row][*col] == 0 {
+                continue;
             }
+            Self::unset_note(&mut self.square_notes[3 * x + y], self.puzzle[*row][*col]);
         }
     }
 
@@ -140,21 +138,24 @@ impl NotesManager {
 
     pub fn set_obvious_pairs(&mut self) -> bool {
         let mut any_progress = false;
-        for row in 0..GRID_SIZE {
-            for col in 0..GRID_SIZE {
-                if self.notes[row][col].count_ones() == 2 {
-                    any_progress |= self.match_pair((row, col));
-                }
-            }
+        for index in 0..GRID_SIZE {
+            any_progress |= self.perform_obvious_pair(&get_row_coordinates(index));
+            any_progress |= self.perform_obvious_pair(&get_col_coordinates(index));
+            any_progress |= self.perform_obvious_pair(
+                &get_square_coordinates((index / 3, index % 3))
+            );
         }
         any_progress
     }
 
-    fn match_pair(&mut self, (x, y): Point) -> bool {
-        let point = (x, y);
-        self.handle_coresponding_note(&get_row_coordinates(x), point) ||
-            self.handle_coresponding_note(&get_col_coordinates(y), point) ||
-            self.handle_coresponding_note(&get_square_coordinates((x / 3, y / 3)), point)
+    fn perform_obvious_pair(&mut self, coordinates: &Coordinates) -> bool {
+        let mut result = false;
+        for (row, col) in coordinates.iter() {
+            if self.notes[*row][*col].count_ones() == 2 {
+                result |= self.handle_coresponding_note(coordinates, (*row, *col));
+            }
+        }
+        result
     }
 
     fn handle_coresponding_note(&mut self, coordinates: &Coordinates, (x, y): Point) -> bool {
@@ -162,12 +163,22 @@ impl NotesManager {
         let note = self.notes[x][y];
         for (row, col) in coordinates.iter() {
             if self.notes[*row][*col] == note && (*row, *col) != (x, y) {
-                for (row_clear, col_clear) in coordinates.iter() {
-                    if self.notes[*row_clear][*col_clear] != note {
-                        self.notes[*row_clear][*col_clear] &= !note;
-                        any_progress = true;
-                    }
-                }
+                any_progress |= self.clear_notes_obvious_pair_based(coordinates, note);
+            }
+        }
+        any_progress
+    }
+
+    fn clear_notes_obvious_pair_based(
+        &mut self,
+        coordinates: &Coordinates,
+        pair_note: u16
+    ) -> bool {
+        let mut any_progress = false;
+        for (row, col) in coordinates.iter() {
+            if self.notes[*row][*col] != pair_note && (self.notes[*row][*col] & pair_note) != 0 {
+                any_progress = true;
+                self.notes[*row][*col] &= !pair_note;
             }
         }
         any_progress
@@ -192,8 +203,9 @@ impl NotesManager {
     }
 
     pub fn use_square_methods(&mut self) -> bool {
-        crate::solve::pointing_sets::Handler::new(&mut self.notes).handle() ||
-            crate::solve::hidden_sets::use_hidden_sets(&mut self.notes)
+        crate::solve::pointing_sets::Handler::new(&mut self.notes).handle()
+        //  ||
+        //     crate::solve::hidden_sets::use_hidden_sets(&mut self.notes)
     }
 }
 

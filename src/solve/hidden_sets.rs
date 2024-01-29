@@ -14,14 +14,14 @@ pub fn use_hidden_sets(notes: &mut Notes) -> bool {
 
 fn check_hidden_set(notes: &mut Notes, cells: &Coordinates) -> bool {
     let mut result = false;
-    let values_map = crate::solve::count_notes::count(notes, cells);
+    let values_map = crate::solve::map_notes::map(notes, cells);
     for (first, map) in values_map.iter().enumerate() {
         if map.count_ones() == 2 {
             //first is candidate
             for second in first + 1..GRID_SIZE {
-                let candidate = (1 << second) | (1 << first);
-                if check_candidate(values_map[second], values_map[first], candidate) {
+                if values_map[second] == values_map[first] {
                     // candidate found -> check candidate
+                    let candidate = (1 << second) | (1 << first);
                     let (row_first, col_first) = cells[first];
                     let (row_second, col_second) = cells[second];
 

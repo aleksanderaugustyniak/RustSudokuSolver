@@ -4,12 +4,11 @@ use crate::solve::coordinates::*;
 
 pub type Counters = [u16; GRID_SIZE]; //TODO: it's same as HelperNotes -> extract common type
 
-pub fn count(notes: &Notes, cells: &Coordinates) -> Counters {
+pub fn map(notes: &Notes, cells: &Coordinates) -> Counters {
     let mut counters: Counters = Default::default();
     for (index, (row, col)) in cells.iter().enumerate() {
         for value in 1..=GRID_SIZE {
             if is_set(notes[*row][*col], value) {
-                // counters[value - 1] += 1;
                 set_note(&mut counters[value - 1], index as u8);
             }
         }
@@ -68,7 +67,7 @@ mod tests {
         ];
 
         let coordinates = get_row_coordinates(2);
-        let actual = count(&notes, &coordinates);
+        let actual = map(&notes, &coordinates);
         let expected = [
             0b001_000_001, 0b100_101_001, 0b001_011_000, 0b101_110_000, 0b001_000_000, 0,
             0b101_000_000, 0, 0,

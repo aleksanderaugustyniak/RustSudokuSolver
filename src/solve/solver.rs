@@ -23,12 +23,18 @@ impl Solver {
     }
 
     pub fn solve(&mut self) {
+        let iterations_limit = 100;
+        let mut iterations_counter = 0;
         while
-            self.set_obvious_ones() ||
-            self.set_hiden_ones() ||
-            self.notes_manager.set_obvious_pairs() ||
-            self.notes_manager.use_square_methods()
-        {}
+            iterations_counter < iterations_limit &&
+            (self.set_obvious_ones() ||
+                self.set_hiden_ones() ||
+                self.notes_manager.set_obvious_pairs() ||
+                self.notes_manager.use_square_methods())
+        {
+            iterations_counter += 1;
+        }
+        // print!("Iterations: {}", iterations_counter);
     }
 
     fn set_obvious_ones(&mut self) -> bool {
@@ -72,6 +78,9 @@ impl Solver {
     }
 
     fn set(&mut self, row: usize, col: usize, value: u8) {
+        if self.puzzle[row][col] != 0 {
+            panic!();
+        }
         self.puzzle[row][col] = value;
         self.notes_manager.adjust(row, col, value);
     }
