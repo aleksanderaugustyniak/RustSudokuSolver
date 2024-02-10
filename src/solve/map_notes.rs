@@ -2,7 +2,7 @@ use crate::common::grid_size::GRID_SIZE;
 use crate::solve::notes::Notes;
 use crate::solve::coordinates::*;
 
-pub type Counters = [u16; GRID_SIZE]; //TODO: it's same as HelperNotes -> extract common type
+pub type Counters = [u16; GRID_SIZE];
 
 pub fn map(notes: &Notes, cells: &Coordinates) -> Counters {
     let mut counters: Counters = Default::default();

@@ -1,6 +1,6 @@
 use fltk::prelude::WidgetExt;
 use crate::gui::board::Board;
-use crate::common::puzzle::*;
+use crate::common::puzzle::Puzzle;
 
 pub fn read_puzzle(board: &Board) -> Puzzle {
     let mut output: Puzzle = Default::default();

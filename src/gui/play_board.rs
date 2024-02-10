@@ -1,17 +1,13 @@
-use fltk::{ prelude::*, button::*, group::* };
+use fltk::{ prelude::*, button::Button, group::Pack };
 use fltk_theme::widget_themes;
 use std::cell::RefCell;
 use std::rc::Rc;
 use crate::common::grid_size::GRID_SIZE;
-use crate::common::puzzle::*;
-use crate::gui::board::*;
+use crate::common::puzzle::Puzzle;
+use crate::gui::board::Board;
+use crate::gui::consts::*;
 use crate::gui::save_handler::*;
 use crate::solve::solver::Solver;
-
-const MENU_WIDTH: i32 = 25;
-const BUTTON_SIZE: i32 = 50;
-const BOARD_OFFSET_LEFT: i32 = 30;
-const BOARD_OFFSET_TOP: i32 = 2 * MENU_WIDTH;
 
 pub struct PlayBoard {
     play_grid: Rc<RefCell<Board>>,

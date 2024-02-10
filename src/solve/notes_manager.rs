@@ -1,5 +1,5 @@
 use crate::common::grid_size::GRID_SIZE;
-use crate::common::puzzle::*;
+use crate::common::puzzle::Puzzle;
 use crate::solve::coordinates::*;
 use crate::solve::notes::Notes;
 

@@ -2,8 +2,7 @@ use fltk::{ menu, prelude::* };
 use std::cell::RefCell;
 use std::rc::Rc;
 use crate::gui::play_board::PlayBoard;
-
-const MENU_WIDTH: i32 = 25;
+use crate::gui::consts::MENU_WIDTH;
 
 pub struct Menu {
     _menu_bar: menu::MenuBar,

@@ -1,4 +1,4 @@
-use fltk::{ app, prelude::*, enums::*, window };
+use fltk::{ app, prelude::*, window };
 use fltk_theme::*;
 use std::cell::RefCell;
 use std::rc::Rc;
@@ -46,7 +46,7 @@ impl Game {
     }
 
     fn init_window(&mut self) {
-        self.window.set_color(Color::White);
+        self.window.set_color(fltk::enums::Color::White);
         self.window.make_resizable(true);
         self.window.end();
         self.window.show();
