@@ -146,7 +146,10 @@ impl PlayBoard {
     fn display_puzzle(&mut self, solution: &Puzzle) {
         for (row, sol_row) in solution.iter().enumerate() {
             for (col, cell) in sol_row.iter().enumerate() {
-                self.play_grid.borrow_mut()[row][col].set_label(&cell.to_string());
+                let button = &mut self.play_grid.borrow_mut()[row][col];
+                button.set_label(&cell.to_string());
+                Self::format_label(button);
+                highlight_off(button);
             }
         }
     }
