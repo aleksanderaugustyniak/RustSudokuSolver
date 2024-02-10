@@ -1,15 +1,16 @@
 use fltk::{ prelude::*, button::Button };
-use fltk_theme::widget_themes;
 use std::cell::RefCell;
 use std::rc::Rc;
 use crate::common::grid_size::GRID_SIZE;
+use crate::gui::button::*;
 use crate::gui::consts::*;
 use crate::gui::play_board::PlayBoard;
 
 const TOP_OFFSET: i32 = BUTTON_SIZE * (GRID_SIZE as i32) + BOARD_OFFSET_TOP + 25;
+type Panel = [Button; GRID_SIZE];
 
 pub struct ControlPanel {
-    panel: Rc<RefCell<[Button; GRID_SIZE]>>,
+    panel: Rc<RefCell<Panel>>,
     board: Rc<RefCell<PlayBoard>>,
     eraser: Rc<RefCell<Button>>,
 }
@@ -25,17 +26,11 @@ impl ControlPanel {
 
     pub fn display(&mut self) {
         for (number, button) in self.panel.borrow_mut().iter_mut().enumerate() {
-            *button = Button::new(
-                BOARD_OFFSET_LEFT + (number as i32) * BUTTON_SIZE,
-                TOP_OFFSET,
-                BUTTON_SIZE,
-                BUTTON_SIZE,
-                ""
-            );
+            *button = Self::create_button(number);
             button.set_label(&format!("{}", number + 1));
             button.set_label_size(22);
             button.set_label_type(fltk::enums::LabelType::Embossed);
-            button.set_frame(widget_themes::OS_BUTTON_UP_BOX);
+            highlight_off(button);
         }
 
         self.display_eraser();
@@ -43,13 +38,7 @@ impl ControlPanel {
     }
 
     fn display_eraser(&mut self) {
-        *self.eraser.borrow_mut() = Button::new(
-            BOARD_OFFSET_LEFT + (GRID_SIZE as i32) * BUTTON_SIZE,
-            TOP_OFFSET,
-            BUTTON_SIZE,
-            BUTTON_SIZE,
-            ""
-        );
+        *self.eraser.borrow_mut() = Self::create_button(GRID_SIZE);
         self.eraser.borrow_mut().set_label_size(10);
 
         let panel_clone = Rc::clone(&self.panel);
@@ -57,12 +46,9 @@ impl ControlPanel {
 
         self.eraser.borrow_mut().set_callback(move |button: &mut Button| {
             board_clone.borrow_mut().set_number(&button.label());
-            for but in (*panel_clone.borrow_mut()).iter_mut() {
-                but.set_frame(widget_themes::OS_BUTTON_UP_BOX);
-                but.redraw();
-            }
+            Self::clear_highlight(&mut *panel_clone.borrow_mut());
             board_clone.borrow_mut().clear_highlight();
-            button.set_frame(widget_themes::OS_DEFAULT_BUTTON_UP_BOX);
+            highlight_on(button);
         });
     }
 
@@ -74,17 +60,27 @@ impl ControlPanel {
 
             control_button.set_callback(move |button: &mut Button| {
                 board_clone.borrow_mut().set_number(&button.label());
-                for but in (*panel_clone.borrow_mut()).iter_mut() {
-                    but.set_frame(widget_themes::OS_BUTTON_UP_BOX);
-                }
-                button.set_frame(widget_themes::OS_DEFAULT_BUTTON_UP_BOX);
+                Self::clear_highlight(&mut *panel_clone.borrow_mut());
+                highlight_on(button);
                 board_clone.borrow_mut().highlight(&button.label());
-                for but in (*panel_clone.borrow_mut()).iter_mut() {
-                    but.redraw();
-                }
-                eraser_clone.borrow_mut().set_frame(widget_themes::OS_BUTTON_UP_BOX);
-                eraser_clone.borrow_mut().redraw();
+                highlight_off(&mut eraser_clone.borrow_mut());
             });
         }
+    }
+
+    fn clear_highlight(control_panel: &mut Panel) {
+        for button in control_panel.iter_mut() {
+            highlight_off(button);
+        }
+    }
+
+    fn create_button(index: usize) -> Button {
+        Button::new(
+            BOARD_OFFSET_LEFT + (index as i32) * BUTTON_SIZE,
+            TOP_OFFSET,
+            BUTTON_SIZE,
+            BUTTON_SIZE,
+            ""
+        )
     }
 }

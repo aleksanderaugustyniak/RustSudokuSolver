@@ -1,10 +1,10 @@
 use fltk::{ prelude::*, button::Button, group::Pack };
-use fltk_theme::widget_themes;
 use std::cell::RefCell;
 use std::rc::Rc;
 use crate::common::grid_size::GRID_SIZE;
 use crate::common::puzzle::Puzzle;
 use crate::gui::board::Board;
+use crate::gui::button::*;
 use crate::gui::consts::*;
 use crate::gui::save_handler::*;
 use crate::solve::solver::Solver;
@@ -23,13 +23,8 @@ impl PlayBoard {
     }
 
     pub fn display(&mut self) {
-        let mut grid = Pack::new(
-            10,
-            10,
-            BUTTON_SIZE * (GRID_SIZE as i32),
-            BUTTON_SIZE * (GRID_SIZE as i32),
-            ""
-        );
+        let size = BUTTON_SIZE * (GRID_SIZE as i32);
+        let mut grid = Pack::new(10, 10, size, size, "");
         grid.make_resizable(true);
 
         for row in 0..GRID_SIZE {
@@ -47,38 +42,43 @@ impl PlayBoard {
     }
 
     fn display_button(&self, row: usize, col: usize) {
+        let button = &mut self.play_grid.borrow_mut()[row][col];
+        *button = Self::create_button(row, col);
+        Self::format_label(button);
+        self.set_callback(button);
+    }
+
+    fn format_label(button: &mut Button) {
+        button.set_label_size(16);
+        button.set_label_color(fltk::enums::Color::from_rgb(0, 0, 0));
+    }
+
+    fn create_button(row: usize, col: usize) -> Button {
         let square_spacing = 5;
         let square_x = (col as i32) / 3;
         let square_y = (row as i32) / 3;
-        self.play_grid.borrow_mut()[row][col] = Button::new(
+        Button::new(
             BOARD_OFFSET_LEFT + (col as i32) * BUTTON_SIZE + square_spacing * square_x,
             BOARD_OFFSET_TOP + (row as i32) * BUTTON_SIZE + square_spacing * square_y,
             BUTTON_SIZE,
             BUTTON_SIZE,
             ""
-        );
-        self.play_grid.borrow_mut()[row][col].set_label_size(16);
-        self.play_grid
-            .borrow_mut()
-            [row][col].set_label_color(fltk::enums::Color::from_rgb(0, 0, 0));
-        self.set_callback(row, col);
+        )
     }
 
-    fn set_callback(&self, row: usize, col: usize) {
+    fn set_callback(&self, button: &mut Button) {
         let button_label = Rc::clone(&self.current_number);
-        self.play_grid.borrow_mut()[row][col].set_callback(move |button: &mut Button| {
+        button.set_callback(move |button: &mut Button| {
             button.set_label(&format!("{}", button_label.borrow()));
-            button.set_label_size(16);
-            button.set_label_color(fltk::enums::Color::from_rgb(0, 0, 0));
-            button.set_frame(widget_themes::OS_DEFAULT_BUTTON_UP_BOX);
+            Self::format_label(button);
+            highlight_on(button);
         });
     }
 
     pub fn clear_highlight(&mut self) {
         for play_row in self.play_grid.borrow_mut().iter_mut() {
             for button in play_row.iter_mut() {
-                button.set_frame(widget_themes::OS_BUTTON_UP_BOX);
-                button.redraw();
+                highlight_off(button);
             }
         }
     }
@@ -115,14 +115,17 @@ impl PlayBoard {
         for (row, x) in notes.iter().enumerate() {
             for (col, note) in x.iter().enumerate() {
                 if notes[row][col] != 0 {
-                    let button = &mut self.play_grid.borrow_mut()[row][col];
-                    button.set_label(&Self::note_to_string(*note).to_string());
-                    button.set_label_size(10);
-                    button.set_label_color(fltk::enums::Color::from_rgb(80, 80, 240));
-                    button.redraw();
+                    Self::display_note(&mut self.play_grid.borrow_mut()[row][col], *note);
                 }
             }
         }
+    }
+
+    fn display_note(button: &mut Button, note: u16) {
+        button.set_label(&Self::note_to_string(note).to_string());
+        button.set_label_size(10);
+        button.set_label_color(fltk::enums::Color::from_rgb(80, 80, 240));
+        button.redraw();
     }
 
     fn note_to_string(note: u16) -> String {
@@ -152,11 +155,10 @@ impl PlayBoard {
         for play_row in self.play_grid.borrow_mut().iter_mut() {
             for button in play_row.iter_mut() {
                 if button.label() == label {
-                    button.set_frame(widget_themes::OS_DEFAULT_BUTTON_UP_BOX);
+                    highlight_on(button);
                 } else {
-                    button.set_frame(widget_themes::OS_BUTTON_UP_BOX);
+                    highlight_off(button);
                 }
-                button.redraw();
             }
         }
     }
