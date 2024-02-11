@@ -52,16 +52,11 @@ impl Solver {
     }
 
     fn set_hiden_ones(&mut self) -> bool {
-        let mut any_cell_filled: bool = false;
-        for index in 0..GRID_SIZE {
-            let all_coordinates = all_coordinates(index);
-            for value in 1..=GRID_SIZE {
-                for coordinates in all_coordinates {
-                    any_cell_filled |= self.set_hidden(&coordinates, value);
-                }
-            }
+        let mut result: bool = false;
+        for value in 1..=GRID_SIZE {
+            result |= perform_for_all_sets(|coordinates| { self.set_hidden(coordinates, value) });
         }
-        any_cell_filled
+        result
     }
 
     fn set_hidden(&mut self, coordinates: &Coordinates, value: usize) -> bool {

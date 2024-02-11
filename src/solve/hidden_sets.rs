@@ -3,13 +3,7 @@ use crate::solve::notes::Notes;
 use crate::solve::coordinates::*;
 
 pub fn use_hidden_sets(notes: &mut Notes) -> bool {
-    let mut result = false;
-    for index in 0..GRID_SIZE {
-        for coordinates in all_coordinates(index) {
-            result |= check_hidden_set(notes, &coordinates);
-        }
-    }
-    result
+    perform_for_all_sets(|coordinates| { check_hidden_set(notes, coordinates) })
 }
 
 fn check_hidden_set(notes: &mut Notes, cells: &Coordinates) -> bool {

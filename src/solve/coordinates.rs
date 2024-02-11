@@ -31,12 +31,19 @@ pub fn get_square_coordinates((square_x, square_y): Point) -> Coordinates {
     c
 }
 
-pub fn all_coordinates(index: usize) -> [Coordinates; 3] {
-    [
-        get_row_coordinates(index),
-        get_col_coordinates(index),
-        get_square_coordinates((index % 3, index / 3)),
-    ]
+pub fn perform_for_all_sets<F>(mut action: F) -> bool where F: FnMut(&Coordinates) -> bool {
+    let mut result = false;
+    for index in 0..GRID_SIZE {
+        let all_coordinates = [
+            get_row_coordinates(index),
+            get_col_coordinates(index),
+            get_square_coordinates((index % 3, index / 3)),
+        ];
+        for coordinates in all_coordinates {
+            result |= action(&coordinates);
+        }
+    }
+    result
 }
 
 #[cfg(test)]

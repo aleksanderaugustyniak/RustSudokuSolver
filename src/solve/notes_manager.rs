@@ -26,11 +26,10 @@ impl NotesManager {
                 *note = if self.puzzle[row][col] != 0 { 0 } else { FILLED_BITSET };
             }
         }
-        for index in 0..GRID_SIZE {
-            for coordinates in all_coordinates(index) {
-                self.set_notes(&coordinates);
-            }
-        }
+        perform_for_all_sets(|coordinates| {
+            self.set_notes(coordinates);
+            false
+        });
     }
 
     pub fn get(&self) -> Notes {
@@ -93,13 +92,7 @@ impl NotesManager {
     }
 
     pub fn set_obvious_pairs(&mut self) -> bool {
-        let mut any_progress = false;
-        for index in 0..GRID_SIZE {
-            for coordinates in all_coordinates(index) {
-                any_progress |= self.perform_obvious_set(&coordinates);
-            }
-        }
-        any_progress
+        perform_for_all_sets(|coordinates| { self.perform_obvious_set(coordinates) })
     }
 
     fn perform_obvious_set(&mut self, coordinates: &Coordinates) -> bool {
