@@ -7,8 +7,9 @@ pub type Counters = [u16; GRID_SIZE];
 pub fn map(notes: &Notes, cells: &Coordinates) -> Counters {
     let mut counters: Counters = Default::default();
     for (index, (row, col)) in cells.iter().enumerate() {
+        let note = notes[*row][*col];
         for value in 1..=GRID_SIZE {
-            if is_set(notes[*row][*col], value) {
+            if is_set(note, value) {
                 set_note(&mut counters[value - 1], index as u8);
             }
         }
@@ -18,12 +19,20 @@ pub fn map(notes: &Notes, cells: &Coordinates) -> Counters {
 
 // TODO: remove copied code -> extract Bitset class
 fn is_set(note: u16, position: usize) -> bool {
-    let mask = 1 << (position - 1);
-    (note & mask) != 0
+    if is_valid_position(position) {
+        let mask = 1 << (position - 1);
+        (note & mask) != 0
+    } else {
+        false
+    }
 }
 
 fn set_note(note: &mut u16, bit: u8) {
     *note |= 1 << bit;
+}
+
+fn is_valid_position(position: usize) -> bool {
+    position > 0 && position <= GRID_SIZE
 }
 
 #[cfg(test)]

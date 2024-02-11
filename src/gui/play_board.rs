@@ -3,6 +3,7 @@ use std::cell::RefCell;
 use std::rc::Rc;
 use crate::common::grid_size::GRID_SIZE;
 use crate::common::puzzle::Puzzle;
+use crate::gui::adapter::read_puzzle;
 use crate::gui::board::Board;
 use crate::gui::button::*;
 use crate::gui::consts::*;
@@ -121,15 +122,14 @@ impl PlayBoard {
     }
 
     pub fn solve_puzzle(&mut self) {
-        let mut solver = Solver::new(crate::gui::adapter::read_puzzle(&self.play_grid.borrow()));
+        let mut solver = Solver::new(read_puzzle(&self.play_grid.borrow()));
         solver.solve();
         self.display_puzzle(&solver.get_solution());
     }
 
     pub fn show_notes(&mut self) {
-        let mut notes_manager = crate::solve::notes_manager::NotesManager::new(
-            crate::gui::adapter::read_puzzle(&self.play_grid.borrow())
-        );
+        use crate::solve::notes_manager::NotesManager;
+        let mut notes_manager = NotesManager::new(read_puzzle(&self.play_grid.borrow()));
         notes_manager.fill();
         let notes = notes_manager.get();
         for (row, x) in notes.iter().enumerate() {

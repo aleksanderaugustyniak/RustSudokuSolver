@@ -15,8 +15,9 @@ impl<'a> Handler<'a> {
     }
 
     pub fn handle(&mut self) -> bool {
-        for start_x in [0, 3, 6] {
-            for start_y in [0, 3, 6] {
+        let square_corners = [0, 3, 6];
+        for start_x in square_corners {
+            for start_y in square_corners {
                 self.handle_pointing_on_square_row(start_x, start_y);
                 self.handle_pointing_on_square_col(start_x, start_y);
             }
@@ -44,7 +45,8 @@ impl<'a> Handler<'a> {
 
     fn use_pointing_set_on_row(&mut self, note: u16, row: usize, col: usize) {
         for i in 0..GRID_SIZE {
-            if i / 3 != col / 3 {
+            let is_different_col = i / 3 != col / 3;
+            if is_different_col {
                 let cell = &mut self.notes[row][i];
                 if (*cell & note) != 0 {
                     self.progress = true;
@@ -56,7 +58,8 @@ impl<'a> Handler<'a> {
 
     fn use_pointing_set_on_col(&mut self, note: u16, row: usize, col: usize) {
         for i in 0..GRID_SIZE {
-            if i / 3 != row / 3 {
+            let is_different_row = i / 3 != row / 3;
+            if is_different_row {
                 let cell = &mut self.notes[i][col];
                 if (*cell & note) != 0 {
                     self.progress = true;

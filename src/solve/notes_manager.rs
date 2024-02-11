@@ -46,13 +46,13 @@ impl NotesManager {
         }
     }
 
-    fn get_notes(&mut self, coordinates: &Coordinates) -> u16 {
+    fn get_notes(&self, coordinates: &Coordinates) -> u16 {
         let mut note: u16 = FILLED_BITSET;
         for (row, col) in coordinates.iter() {
-            if self.puzzle[*row][*col] == 0 {
-                continue;
+            let cell = self.puzzle[*row][*col];
+            if cell != 0 {
+                Self::unset_note(&mut note, cell);
             }
-            Self::unset_note(&mut note, self.puzzle[*row][*col]);
         }
         note
     }
@@ -74,27 +74,37 @@ impl NotesManager {
 
     //TODO: extract bitset struct
     fn unset_note(note: &mut u16, bit: u8) {
-        *note &= !(1 << (bit - 1));
+        if Self::is_valid_position(bit as usize) {
+            *note &= !(1 << (bit - 1));
+        }
     }
 
-    fn is_set(note: &u16, position: usize) -> bool {
-        let mask = 1 << (position - 1);
-        (*note & mask) != 0
+    fn is_set(note: u16, position: usize) -> bool {
+        if Self::is_valid_position(position) {
+            let mask = 1 << (position - 1);
+            (note & mask) != 0
+        } else {
+            false
+        }
+    }
+
+    fn is_valid_position(position: usize) -> bool {
+        position > 0 && position <= GRID_SIZE
     }
 
     pub fn set_obvious_pairs(&mut self) -> bool {
         let mut any_progress = false;
         for index in 0..GRID_SIZE {
-            any_progress |= self.perform_obvious_pair(&get_row_coordinates(index));
-            any_progress |= self.perform_obvious_pair(&get_col_coordinates(index));
-            any_progress |= self.perform_obvious_pair(
+            any_progress |= self.perform_obvious_set(&get_row_coordinates(index));
+            any_progress |= self.perform_obvious_set(&get_col_coordinates(index));
+            any_progress |= self.perform_obvious_set(
                 &get_square_coordinates((index / 3, index % 3))
             );
         }
         any_progress
     }
 
-    fn perform_obvious_pair(&mut self, coordinates: &Coordinates) -> bool {
+    fn perform_obvious_set(&mut self, coordinates: &Coordinates) -> bool {
         let mut result = false;
         for (row, col) in coordinates.iter() {
             if self.notes[*row][*col].count_ones() == 2 {
@@ -105,17 +115,19 @@ impl NotesManager {
             return true;
         }
         for (index, (row, col)) in coordinates.iter().enumerate() {
-            if self.notes[*row][*col].count_ones() <= 3 && self.notes[*row][*col] != 0 {
-                self.handle_triple(coordinates, index, self.notes[*row][*col]);
+            let note = self.notes[*row][*col];
+            if note.count_ones() <= 3 && note != 0 {
+                result |= self.handle_triple(coordinates, index, note);
             }
         }
         result
     }
 
-    fn handle_triple(&mut self, coordinates: &Coordinates, index: usize, first_note: u16) {
+    fn handle_triple(&mut self, coordinates: &Coordinates, index: usize, first_note: u16) -> bool {
         if index >= GRID_SIZE - 2 {
-            return; // can't find triple on last or previous one
+            return false; // can't find triple on last or previous one
         }
+        let mut result = false;
         for second in index + 1..GRID_SIZE - 1 {
             let (row, col) = coordinates[second];
             let second_note = self.notes[row][col] | first_note;
@@ -124,11 +136,12 @@ impl NotesManager {
                     let (row3, col3) = coordinates[third];
                     let note = second_note | self.notes[row3][col3];
                     if note.count_ones() <= 3 && self.notes[row3][col3] != 0 {
-                        self.clear_notes_obvious_set_based(coordinates, note);
+                        result |= self.clear_notes_obvious_set_based(coordinates, note);
                     }
                 }
             }
         }
+        result
     }
 
     fn handle_coresponding_note(&mut self, coordinates: &Coordinates, (x, y): Point) -> bool {
@@ -146,7 +159,8 @@ impl NotesManager {
         let mut any_progress = false;
         for (row, col) in coordinates.iter() {
             let note = &mut self.notes[*row][*col];
-            if (*note & pair_note) != *note && (*note & pair_note) != 0 {
+            let masked_note = *note & pair_note;
+            if masked_note != *note && masked_note != 0 {
                 any_progress = true;
                 *note &= !pair_note;
             }
@@ -154,22 +168,19 @@ impl NotesManager {
         any_progress
     }
 
-    pub fn get_hidden(&mut self, coordinates: &Coordinates, value: usize) -> Option<Point> {
-        let mut count_values = 0;
-        let mut row_found = 0;
-        let mut col_found = 0;
+    pub fn get_hidden(&self, coordinates: &Coordinates, value: usize) -> Option<Point> {
+        let mut found = false;
+        let mut coordinate_found = None;
         for (row, col) in coordinates.iter() {
-            if Self::is_set(&self.notes[*row][*col], value) {
-                count_values += 1;
-                row_found = *row;
-                col_found = *col;
+            if Self::is_set(self.notes[*row][*col], value) {
+                if found {
+                    return None;
+                }
+                found = true;
+                coordinate_found = Some((*row, *col));
             }
         }
-        if count_values == 1 {
-            Some((row_found, col_found))
-        } else {
-            None
-        }
+        coordinate_found
     }
 
     pub fn use_square_methods(&mut self) -> bool {

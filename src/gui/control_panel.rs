@@ -46,7 +46,7 @@ impl ControlPanel {
 
         self.eraser.borrow_mut().set_callback(move |button: &mut Button| {
             board_clone.borrow_mut().set_number(&button.label());
-            Self::clear_highlight(&mut *panel_clone.borrow_mut());
+            Self::clear_highlight(&mut panel_clone.borrow_mut());
             board_clone.borrow_mut().clear_highlight();
             highlight_on(button);
         });
@@ -60,7 +60,7 @@ impl ControlPanel {
 
             control_button.set_callback(move |button: &mut Button| {
                 board_clone.borrow_mut().set_number(&button.label());
-                Self::clear_highlight(&mut *panel_clone.borrow_mut());
+                Self::clear_highlight(&mut panel_clone.borrow_mut());
                 highlight_on(button);
                 board_clone.borrow_mut().highlight(&button.label());
                 highlight_off(&mut eraser_clone.borrow_mut());
@@ -75,12 +75,7 @@ impl ControlPanel {
     }
 
     fn create_button(index: usize) -> Button {
-        Button::new(
-            BOARD_OFFSET_LEFT + (index as i32) * BUTTON_SIZE,
-            TOP_OFFSET,
-            BUTTON_SIZE,
-            BUTTON_SIZE,
-            ""
-        )
+        let left_offset = BOARD_OFFSET_LEFT + (index as i32) * BUTTON_SIZE;
+        Button::new(left_offset, TOP_OFFSET, BUTTON_SIZE, BUTTON_SIZE, "")
     }
 }

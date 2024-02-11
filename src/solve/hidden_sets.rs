@@ -31,9 +31,12 @@ fn check_hidden_set(notes: &mut Notes, cells: &Coordinates) -> bool {
 fn clear_hidden_set(notes: &mut Notes, cells: &Coordinates, candidate: u16) -> bool {
     let mut result = false;
     for (row, col) in cells.iter() {
-        if (notes[*row][*col] & candidate) != 0 && (notes[*row][*col] | candidate) != candidate {
+        let note = notes[*row][*col];
+        let is_not_set = (note & candidate) != 0;
+        if is_not_set {
+            let is_not_candidate = (note | candidate) != candidate;
             notes[*row][*col] &= candidate;
-            result |= true;
+            result |= is_not_candidate;
         }
     }
     result

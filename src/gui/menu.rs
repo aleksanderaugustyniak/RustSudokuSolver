@@ -10,6 +10,8 @@ const CLEAR: &str = "Clear";
 const SOLVE: &str = "Solve";
 const SHOW_NOTES: &str = "Show notes";
 
+const MENU_LENGTH: i32 = 60;
+
 pub struct Menu {
     _menu_bar: menu::MenuBar,
     file_menu: menu::MenuButton,
@@ -21,8 +23,8 @@ impl Menu {
     pub fn new(play_board: Rc<RefCell<PlayBoard>>, window_width: i32) -> Self {
         Menu {
             _menu_bar: menu::MenuBar::new(0, 0, window_width, MENU_WIDTH, ""),
-            file_menu: menu::MenuButton::new(0, 0, 60, MENU_WIDTH, "Board"),
-            solve_menu: menu::MenuButton::new(60, 0, 60, MENU_WIDTH, SOLVE),
+            file_menu: menu::MenuButton::new(0, 0, MENU_LENGTH, MENU_WIDTH, "Board"),
+            solve_menu: menu::MenuButton::new(MENU_LENGTH, 0, MENU_LENGTH, MENU_WIDTH, SOLVE),
             board: Rc::clone(&play_board),
         }
     }
