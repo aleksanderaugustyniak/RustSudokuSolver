@@ -54,26 +54,21 @@ impl Solver {
     fn set_hiden_ones(&mut self) -> bool {
         let mut any_cell_filled: bool = false;
         for index in 0..GRID_SIZE {
-            let row_coordinates = get_row_coordinates(index);
-            let col_coordinates = get_col_coordinates(index);
-            let square_coordinates = get_square_coordinates((index % 3, index / 3));
+            let all_coordinates = all_coordinates(index);
             for value in 1..=GRID_SIZE {
-                any_cell_filled |= self.set_hidden(&row_coordinates, value);
-                any_cell_filled |= self.set_hidden(&col_coordinates, value);
-                any_cell_filled |= self.set_hidden(&square_coordinates, value);
+                for coordinates in all_coordinates {
+                    any_cell_filled |= self.set_hidden(&coordinates, value);
+                }
             }
         }
         any_cell_filled
     }
 
     fn set_hidden(&mut self, coordinates: &Coordinates, value: usize) -> bool {
-        match self.notes_manager.get_hidden(coordinates, value) {
-            Some((row, col)) => {
-                self.set(row, col, value as u8);
-                true
-            }
-            None => { false }
-        }
+        self.notes_manager.get_hidden(coordinates, value).map_or(false, |(row, col)| {
+            self.set(row, col, value as u8);
+            true
+        })
     }
 
     fn set(&mut self, row: usize, col: usize, value: u8) {

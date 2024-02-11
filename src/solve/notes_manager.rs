@@ -27,9 +27,9 @@ impl NotesManager {
             }
         }
         for index in 0..GRID_SIZE {
-            self.set_notes(&get_row_coordinates(index));
-            self.set_notes(&get_col_coordinates(index));
-            self.set_notes(&get_square_coordinates((index / 3, index % 3)));
+            for coordinates in all_coordinates(index) {
+                self.set_notes(&coordinates);
+            }
         }
     }
 
@@ -95,11 +95,9 @@ impl NotesManager {
     pub fn set_obvious_pairs(&mut self) -> bool {
         let mut any_progress = false;
         for index in 0..GRID_SIZE {
-            any_progress |= self.perform_obvious_set(&get_row_coordinates(index));
-            any_progress |= self.perform_obvious_set(&get_col_coordinates(index));
-            any_progress |= self.perform_obvious_set(
-                &get_square_coordinates((index / 3, index % 3))
-            );
+            for coordinates in all_coordinates(index) {
+                any_progress |= self.perform_obvious_set(&coordinates);
+            }
         }
         any_progress
     }

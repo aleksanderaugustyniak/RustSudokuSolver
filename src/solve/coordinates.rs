@@ -31,6 +31,14 @@ pub fn get_square_coordinates((square_x, square_y): Point) -> Coordinates {
     c
 }
 
+pub fn all_coordinates(index: usize) -> [Coordinates; 3] {
+    [
+        get_row_coordinates(index),
+        get_col_coordinates(index),
+        get_square_coordinates((index % 3, index / 3)),
+    ]
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

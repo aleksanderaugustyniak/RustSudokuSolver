@@ -4,10 +4,10 @@ use crate::solve::coordinates::*;
 
 pub fn use_hidden_sets(notes: &mut Notes) -> bool {
     let mut result = false;
-    for i in 0..GRID_SIZE {
-        result |= check_hidden_set(notes, &get_row_coordinates(i));
-        result |= check_hidden_set(notes, &get_col_coordinates(i));
-        result |= check_hidden_set(notes, &get_square_coordinates((i / 3, i % 3)));
+    for index in 0..GRID_SIZE {
+        for coordinates in all_coordinates(index) {
+            result |= check_hidden_set(notes, &coordinates);
+        }
     }
     result
 }
