@@ -97,7 +97,27 @@ impl PlayBoard {
     }
 
     pub fn read_from_file(&self) -> Result<(), Box<dyn std::error::Error>> {
-        from_json("boards/board.json", &mut self.play_grid.borrow_mut())
+        match from_json("boards/board.json") {
+            Ok(labels) => {
+                self.display_content_from_labels(&labels);
+                Ok(())
+            }
+            Err(e) => Err(e),
+        }
+    }
+
+    fn display_content_from_labels(&self, labels: &crate::gui::board::Labels) {
+        for (row, buttons) in self.play_grid.borrow_mut().iter_mut().enumerate() {
+            for (col, button) in buttons.iter_mut().enumerate() {
+                let label = &labels[row][col];
+                if label.len() > 1 {
+                    Self::format_note(button, label);
+                    continue;
+                }
+                button.set_label(label);
+                button.redraw();
+            }
+        }
     }
 
     pub fn solve_puzzle(&mut self) {
@@ -122,7 +142,11 @@ impl PlayBoard {
     }
 
     fn display_note(button: &mut Button, note: u16) {
-        button.set_label(&Self::note_to_string(note).to_string());
+        Self::format_note(button, &Self::note_to_string(note).to_string());
+    }
+
+    fn format_note(button: &mut Button, note: &str) {
+        button.set_label(note);
         button.set_label_size(10);
         button.set_label_color(fltk::enums::Color::from_rgb(80, 80, 240));
         button.redraw();
