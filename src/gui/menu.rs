@@ -4,6 +4,12 @@ use std::rc::Rc;
 use crate::gui::play_board::PlayBoard;
 use crate::gui::consts::MENU_WIDTH;
 
+const SAVE: &str = "Save";
+const READ: &str = "Read";
+const CLEAR: &str = "Clear";
+const SOLVE: &str = "Solve";
+const SHOW_NOTES: &str = "Show notes";
+
 pub struct Menu {
     _menu_bar: menu::MenuBar,
     file_menu: menu::MenuButton,
@@ -16,18 +22,18 @@ impl Menu {
         Menu {
             _menu_bar: menu::MenuBar::new(0, 0, window_width, MENU_WIDTH, ""),
             file_menu: menu::MenuButton::new(0, 0, 60, MENU_WIDTH, "Board"),
-            solve_menu: menu::MenuButton::new(60, 0, 60, MENU_WIDTH, "Solve"),
+            solve_menu: menu::MenuButton::new(60, 0, 60, MENU_WIDTH, SOLVE),
             board: Rc::clone(&play_board),
         }
     }
 
     pub fn display(&mut self) {
-        self.file_menu.add_choice("Save");
-        self.file_menu.add_choice("Read");
-        self.file_menu.add_choice("Clear");
+        self.file_menu.add_choice(SAVE);
+        self.file_menu.add_choice(READ);
+        self.file_menu.add_choice(CLEAR);
         self.set_file_callback();
-        self.solve_menu.add_choice("Solve");
-        self.solve_menu.add_choice("Show notes");
+        self.solve_menu.add_choice(SOLVE);
+        self.solve_menu.add_choice(SHOW_NOTES);
         self.set_solve_callback();
     }
 
@@ -36,21 +42,23 @@ impl Menu {
         let board_clone = Rc::clone(&self.board);
 
         self.file_menu.set_callback(move |_| {
-            match file_menu_clone.value() {
-                0 => {
-                    if let Err(err) = board_clone.borrow().to_json() {
-                        eprintln!("Error writing to JSON file: {}", err);
+            if let Some(choice) = file_menu_clone.choice() {
+                match choice.as_str() {
+                    SAVE => {
+                        if let Err(err) = board_clone.borrow().to_json() {
+                            eprintln!("Error writing to JSON file: {}", err);
+                        }
                     }
-                }
-                1 => {
-                    if let Err(err) = board_clone.borrow_mut().read_from_file() {
-                        eprintln!("Error updating from JSON file: {}", err);
+                    READ => {
+                        if let Err(err) = board_clone.borrow_mut().read_from_file() {
+                            eprintln!("Error updating from JSON file: {}", err);
+                        }
                     }
+                    CLEAR => {
+                        (*board_clone.borrow_mut()).clear();
+                    }
+                    _ => {}
                 }
-                2 => {
-                    (*board_clone.borrow_mut()).clear();
-                }
-                _ => {}
             }
         });
     }
@@ -60,14 +68,16 @@ impl Menu {
         let board_clone = Rc::clone(&self.board);
 
         self.solve_menu.set_callback(move |_| {
-            match solve_menu_clone.value() {
-                0 => {
-                    board_clone.borrow_mut().solve_puzzle();
+            if let Some(choice) = solve_menu_clone.choice() {
+                match choice.as_str() {
+                    SOLVE => {
+                        board_clone.borrow_mut().solve_puzzle();
+                    }
+                    SHOW_NOTES => {
+                        board_clone.borrow_mut().show_notes();
+                    }
+                    _ => {}
                 }
-                1 => {
-                    board_clone.borrow_mut().show_notes();
-                }
-                _ => {}
             }
         });
     }
